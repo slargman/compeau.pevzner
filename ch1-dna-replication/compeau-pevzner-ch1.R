@@ -147,3 +147,34 @@ FasterFrequentWords <- function(text, k){
 	frequent_patterns <- NumberToPattern(which(frequency_array == max_count) - 1, k)
 	return(frequent_patterns)
 }
+
+#' Find the most frequent \emph{k}-mer in a character string
+#' 
+#' \code{FindingFrequentWordsBySorting} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}. Differs from \code{\link{FrequentWords}} and \code{\link{ComputingFrequences}} by using an index that lists the k-mers that occur in \code{text} in the order they appear using their lexicographic indices. This index is then sorted to find the most frequent \emph{k}-mers.
+#' 
+#' @param text character string
+#' @param k integer which gives the length of \emph{k}-mer
+#' @return character vector of all the most frequent \emph{k}-mers in \code{text}
+#' @examples
+#' FindingFrequentWordsBySorting("ACAACTATGCATACTATCGGGAACTATCCT", 5)
+#' FindingFrequentWordsBySorting("CGATATATCCATAG", 3)
+#' FindingFrequentWordsBySorting("AAGCAAAGGTGGG", 2)
+FindingFrequentWordsBySorting <- function(text, k){
+	index <- numeric(0)
+	count <- numeric(0)
+	for(i in 1:(nchar(text) - k + 1)){
+		pattern <- substr(text, i, i + k - 1)
+		# list of k-mers that appear in text in order given by lexicographic index of k-mer
+		index[i] <- PatternToNumber(pattern)
+		count[i] <- 1
+	}
+	sorted_index <- sort(index)
+	for(i in 2:(nchar(text) - k + 1)){
+		if(sorted_index[i] == sorted_index[i - 1]){
+			count[i] <- count[i - 1] + 1
+		}
+	}
+	max_count <- max(count)
+	frequent_patterns <- NumberToPattern(sorted_index[which(count == max_count)], k)
+	return(frequent_patterns)
+}
