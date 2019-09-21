@@ -44,14 +44,15 @@ FrequentWords <- function(text, k){
 #' 
 #' \code{SymbolToNumber} transforms the symbols A, C, G, and T into the respective integers 0, 1, 2, and 3. This corresponds to the indexing starting from 0 used in the book. Inverse of \code{\link{NumberToSymbol}}.
 #' 
-#' @param symbol character equal to either A, C, G, or T
+#' @param symbol character vector with elements equal to either A, C, G, or T
 #' @examples
 #' SymbolToNumber("A")
+#' SymbolToNumber(c("A", "C", "G", "T"))
 SymbolToNumber <- function(symbol){
 	nucleotides <- c("A", "C", "G", "T")
-	if(symbol %in% nucleotides){
+	if(all(symbol %in% nucleotides)){
 		# book uses indexing starting at 0
-		number <- (which(symbol == nucleotides) - 1)
+		number <- (match(symbol, nucleotides) - 1)
 		return(number)
 	} else {
 		return(NA)
@@ -177,4 +178,35 @@ FindingFrequentWordsBySorting <- function(text, k){
 	max_count <- max(count)
 	frequent_patterns <- NumberToPattern(sorted_index[which(count == max_count)], k)
 	return(frequent_patterns)
+}
+
+#' Give the complement nucleotide for a given nucleotide
+#' 
+#' \code{NucleotideComplement) returns the nucleotide that is the complement to a given nucleotide, i.e. returns T, G, C, and A for A, C, G, and T respectively. Can operate on a vector, returning a vector of the complements.
+#' 
+#' @param nucleotide character vector with each element equal to A, C, G, or T
+#' @examples
+#' NucleotideComplement("A")
+#' NucleotideComplement(c("A", "C", "G", "T"))
+NucleotideComplement <- function(nucleotide){
+	nucleotide_complements <- c("T", "G", "C", "A")
+	index <- SymbolToNumber(nucleotide)
+	# index starts at 0 for SymbolToNumber
+	complement <- nucleotide_complements[index + 1]
+	return(complement)
+}
+
+#' Give the complement nucleotide sequence for given nucleotide pattern
+#' 
+#' \code{NucleotideComplement) returns the nucleotide squence that is the reverse complement to a given nucleotide pattern. If the nucleotide pattern is written from 5' to 3', then \code{NucleotideComplement} returns the complementary sequence also written from 5' to 3'. Relies on \code{\link{NucleotideComplement}}.
+#' 
+#' @param pattern character string consisting of only the characters A, C, G, and T
+#' @examples
+#' ReverseComplement("AGTCGCATAGT")
+ReverseComplement <- function(pattern){
+	nucleotides <- strsplit(pattern, "")[[1]]
+	nucleotides_reverse_complement <- rev(NucleotideComplement(nucleotides))
+	# collapse argument used to collapse vector argument
+	pattern_complement <- paste0(nucleotides_reverse_complement, collapse = "")
+	return(pattern_complement)
 }
