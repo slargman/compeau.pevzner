@@ -68,7 +68,7 @@ SymbolToNumber <- function(symbol){
 #' PatternToNumber("AGT")
 PatternToNumber <- function(pattern){
 	nucleotides <- c("A", "C", "G", "T")
-	#check if pattern is empty
+	#check if pattern is empty to establish base case
 	if(identical(pattern, "")){
 		return(0)
 	}
@@ -107,4 +107,43 @@ NumberToPattern <- function(index, k){
 	symbol <- NumberToSymbol(r)
 	prefix_pattern <- NumberToPattern(prefix_index, k - 1)
 	return(paste0(prefix_pattern, symbol))
+}
+
+#' Generate frequency array giving occurence of all k-mers in text
+#' 
+#' \code{ComputingFrequences} takes a character string \code{text} and returns a "frequency array" (numeric vector) which gives the number of occurences of each k-mer in the text. The index of the frequency array corresponds to 1 more than the lexicographic index of the corresponding k-mer (lexicographic index shifted by 1 to correspond with indexing starting at 0 as in the book).
+#' 
+#' @param text character string to be scanned for frequent k-mers
+#' @param k integer which gives length to be used for sequences
+#' @examples
+#' ComputingFrequences("AAGCAAAGGTGGG", 2)
+ComputingFrequences <- function(text, k){
+	frequency_array <- numeric(4^k)
+	for(i in 1:(nchar(text) - k + 1)){
+		pattern <- substr(text, i, i + k - 1)
+		# shift to account for indexing from 0
+		j <- PatternToNumber(pattern) + 1
+		frequency_array[j] <- frequency_array[j] + 1
+	}
+	return(frequency_array)
+}
+
+#' Find the most frequent \emph{k}-mer in a character string
+#' 
+#' \code{FasterFrequentWords} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}. Differs from \code{\link{FrequentWords}} by using a frequency array generated from \code{\link{ComputingFrequences}}.
+#' 
+#' @param text character string
+#' @param k integer which gives the length of \emph{k}-mer
+#' @return character vector of all the most frequent \emph{k}-mers in \code{text}
+#' @examples
+#' FasterFrequentWords("ACAACTATGCATACTATCGGGAACTATCCT", 5)
+#' FasterFrequentWords("CGATATATCCATAG", 3)
+#' FasterFrequentWords("AAGCAAAGGTGGG", 2)
+FasterFrequentWords <- function(text, k){
+	#frequent_patterns <- character(0)
+	frequency_array <- ComputingFrequences(text, k)
+	max_count <- max(frequency_array)
+	# adjust index by 1
+	frequent_patterns <- NumberToPattern(which(frequency_array == max_count) - 1, k)
+	return(frequent_patterns)
 }
