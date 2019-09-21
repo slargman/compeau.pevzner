@@ -112,13 +112,13 @@ NumberToPattern <- function(index, k){
 
 #' Generate frequency array giving occurence of all k-mers in text
 #' 
-#' \code{ComputingFrequences} takes a character string \code{text} and returns a "frequency array" (numeric vector) which gives the number of occurences of each k-mer in the text. The index of the frequency array corresponds to 1 more than the lexicographic index of the corresponding k-mer (lexicographic index shifted by 1 to correspond with indexing starting at 0 as in the book).
+#' \code{ComputingFrequencies} takes a character string \code{text} and returns a "frequency array" (numeric vector) which gives the number of occurences of each k-mer in the text. The index of the frequency array corresponds to 1 more than the lexicographic index of the corresponding k-mer (lexicographic index shifted by 1 to correspond with indexing starting at 0 as in the book).
 #' 
 #' @param text character string to be scanned for frequent k-mers
 #' @param k integer which gives length to be used for sequences
 #' @examples
-#' ComputingFrequences("AAGCAAAGGTGGG", 2)
-ComputingFrequences <- function(text, k){
+#' ComputingFrequencies("AAGCAAAGGTGGG", 2)
+ComputingFrequencies <- function(text, k){
 	frequency_array <- numeric(4^k)
 	for(i in 1:(nchar(text) - k + 1)){
 		pattern <- substr(text, i, i + k - 1)
@@ -131,7 +131,7 @@ ComputingFrequences <- function(text, k){
 
 #' Find the most frequent \emph{k}-mer in a character string
 #' 
-#' \code{FasterFrequentWords} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}. Differs from \code{\link{FrequentWords}} by using a frequency array generated from \code{\link{ComputingFrequences}}.
+#' \code{FasterFrequentWords} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}. Differs from \code{\link{FrequentWords}} by using a frequency array generated from \code{\link{ComputingFrequencies}}.
 #' 
 #' @param text character string
 #' @param k integer which gives the length of \emph{k}-mer
@@ -142,7 +142,7 @@ ComputingFrequences <- function(text, k){
 #' FasterFrequentWords("AAGCAAAGGTGGG", 2)
 FasterFrequentWords <- function(text, k){
 	#frequent_patterns <- character(0)
-	frequency_array <- ComputingFrequences(text, k)
+	frequency_array <- ComputingFrequencies(text, k)
 	max_count <- max(frequency_array)
 	# adjust index by 1
 	frequent_patterns <- NumberToPattern(which(frequency_array == max_count) - 1, k)
@@ -151,7 +151,7 @@ FasterFrequentWords <- function(text, k){
 
 #' Find the most frequent \emph{k}-mer in a character string
 #' 
-#' \code{FindingFrequentWordsBySorting} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}. Differs from \code{\link{FrequentWords}} and \code{\link{ComputingFrequences}} by using an index that lists the k-mers that occur in \code{text} in the order they appear using their lexicographic indices. This index is then sorted to find the most frequent \emph{k}-mers.
+#' \code{FindingFrequentWordsBySorting} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}. Differs from \code{\link{FrequentWords}} and \code{\link{ComputingFrequencies}} by using an index that lists the k-mers that occur in \code{text} in the order they appear using their lexicographic indices. This index is then sorted to find the most frequent \emph{k}-mers.
 #' 
 #' @param text character string
 #' @param k integer which gives the length of \emph{k}-mer
@@ -209,4 +209,75 @@ ReverseComplement <- function(pattern){
 	# collapse argument used to collapse vector argument
 	pattern_complement <- paste0(nucleotides_reverse_complement, collapse = "")
 	return(pattern_complement)
+}
+
+#' Find all occurrences of a pattern in a string
+#' 
+#' \code{MatchPattern} returns the indices (starting at 0) of all starting positions in the string \code{genome} where the string \code{pattern} appears as a substring. Indexing from 0 is used to match the book. Note that code\{MatchPattern} returns overlapping matches unlike \code{\link{gregexpr}} which only returns disjoint matches.
+#' 
+#' @param pattern string to be searched for
+#' @param genome string where occurences of \code{pattern} will be searched for
+#' @examples
+#' MatchPattern("AA", "CAAAT")
+#' MatchPattern("TCA", "ATGATCAAG")
+MatchPattern <- function(pattern, genome){
+	# gregexpr returns disjoint matches only so perl regular expression with look-ahead assertion (?=...) is necessary
+	match_location <- as.integer(gregexpr(paste0("(?=", pattern, ")"), genome, ignore.case = TRUE, perl = TRUE)[[1]])
+	# to match indexing from 0 in book
+	return(match_location - 1)
+}
+
+#' Find patterns forming clumps in a string
+#' 
+#' \code{WorseClumpFinding} finds all distinct \emph{k}-mers (strings of length \emph{k}) that form (\emph{L},\emph{t})-clumps in \code{genome}. A \emph{k}-mer \code{pattern} forms an (\emph{L},\emph{t})-clump inside a (longer) string \code{genome} if there is an interval of \code{genome} of length \emph{L} in which this \emph{k}-mer appears at least \emph{t} times (assumes that the \emph{k}-mer completely fits in the interval). Differs from \code{\link{ClumpFinding}} in that \code{ClumpFinding} is faster since it only calculates the frequency array using \code{\link{ComputingFrequencies}} once then updates it for each window of \code{genome} of length \emph{L}, whereas \code{WorseClumpFinding} uses \code{\link{ComputingFrequencies}} to calculate the frequency array from scratch for each window of length L.
+#' 
+#' @param genome character string consisting only of the characters A, C, G, and T
+#' @param k integer giving length of k-mers to be checked for clumps
+#' @param t integer giving number of occurences of a k-mer in window of length L to qualify as a clump
+#' @param L integer giving size of window to be checked for occurences of k-mer to determine presence of clump
+#' @examples
+#' WorseClumpFinding("GATCAGCATAAGGGTCCCTGCAATGCATGACAAGCCTGCAGTTGTTTTAC", 4, 3, 25)
+WorseClumpFinding <- function(genome, k, t, L){
+	clump <- logical(4^k)
+	# slide window of length L down genome and check for t clumps
+	for(i in 1:(nchar(genome) - L + 1)){
+		text <- substr(genome, i, i + L - 1)
+		frequency_array <- ComputingFrequencies(text, k)
+		clump[which(frequency_array >= t)] <- TRUE
+	}
+	frequent_patterns <- NumberToPattern(which(clump) - 1, k)
+	return(frequent_patterns)
+}
+
+#' Find patterns forming clumps in a string
+#' 
+#' \code{ClumpFinding} finds all distinct \emph{k}-mers (strings of length \emph{k}) that form (\emph{L},\emph{t})-clumps in \code{genome}. A \emph{k}-mer \code{pattern} forms an (\emph{L},\emph{t})-clump inside a (longer) string \code{genome} if there is an interval of \code{genome} of length \emph{L} in which this \emph{k}-mer appears at least \emph{t} times (assumes that the \emph{k}-mer completely fits in the interval).
+#' 
+#' @param genome character string consisting only of the characters A, C, G, and T
+#' @param k integer giving length of k-mers to be checked for clumps
+#' @param t integer giving number of occurences of a k-mer in window of length L to qualify as a clump
+#' @param L integer giving size of window to be checked for occurences of k-mer to determine presence of clump
+#' @examples
+#' ClumpFinding("GATCAGCATAAGGGTCCCTGCAATGCATGACAAGCCTGCAGTTGTTTTAC", 4, 3, 25)
+ClumpFinding <- function(genome, k, t, L){
+	text <- substr(genome, 1, L)
+	frequency_array <- ComputingFrequencies(text, k)
+	clump <- (frequency_array >= t)
+
+	# slide window of length L down genome and update frequency_array
+	for(i in 2:(nchar(genome) - L + 1)){
+		first_pattern <- substr(genome, i - 1, i + k - 2)
+		index <- PatternToNumber(first_pattern) + 1
+		frequency_array[index] <- frequency_array[index] - 1
+
+		last_pattern <- substr(genome, i + L - k, i + L - 1)
+		index <- PatternToNumber(last_pattern) + 1
+		frequency_array[index] <- frequency_array[index] + 1
+		if(frequency_array[index] >= t){
+			clump[index] <- TRUE
+		}
+	}
+
+	frequent_patterns <- NumberToPattern(which(clump) - 1, k)
+	return(frequent_patterns)
 }
