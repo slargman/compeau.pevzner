@@ -226,6 +226,9 @@ MatchPattern <- function(pattern, genome){
 	# to match indexing from 0 in book
 	return(match_location - 1)
 }
+# writeClipboard(paste0(as.character(MatchPattern(readLines("dataset_3_5.txt")[[1]], readLines("dataset_3_5.txt")[[2]])), collapse = " "))
+
+cholerae <- readLines("vibrio_cholerae.txt")
 
 #' Find patterns forming clumps in a string
 #' 
@@ -281,3 +284,32 @@ ClumpFinding <- function(genome, k, t, L){
 	frequent_patterns <- NumberToPattern(which(clump) - 1, k)
 	return(frequent_patterns)
 }
+
+#' Find location of minimum skew
+#' 
+#' \code{FindMinimumSkew} finds the location \emph{i} in a character string which has the lowest value of \eqn{\text{Skew_i}(\text{Genome})}. Skew_i(Genome) is defined as the difference between the total number of occurrences of G and the total number of occurrences of C in the first \emph{i} nucleotides of \code{Genome}. Skew_0(Genome) is defined as 0. Note that indexing starts at 1, i.e. FindMiniumSkew("CG") returns 1.
+#' 
+#' @param genome character string consisting only of the characters A, C, G, or T
+#' @examples
+#' FindMinimumSkew("CATGGGCATCGGCCATACGCC")
+#' FindMinimumSkew("CG")
+FindMinimumSkew <- function(genome){
+	skew <- numeric(nchar(genome))
+	genome_vector <- strsplit(genome, "")[[1]]
+
+	# calculate skew
+	for (i in 2:length(genome_vector)) {
+		if (genome_vector[i] == "G") {
+			skew[i] <- skew[i - 1] + 1
+		} else if (genome_vector[i] == "C") {
+			skew[i] <- skew[i - 1] - 1
+		} else {
+			skew[i] <- skew[i - 1]
+		}
+	}
+
+	min_skew <- min(skew)
+	oriC <- which(skew == min_skew)
+	return(oriC)
+}
+
