@@ -1,6 +1,6 @@
 #' Count the number of occurrences of a given k-mer pattern in a string
 #' 
-#' \code{PatternCount} returns the number of occurrences of \code{pattern} in the string \code{text}
+#' \code{PatternCount} returns the number of occurrences of \code{pattern} in the string \code{text}.
 #' 
 #' @param text character string to be scanned for occurrences of the string \code{pattern}
 #' @param pattern character string to be matched in the given character string
@@ -213,22 +213,21 @@ ReverseComplement <- function(pattern){
 
 #' Find all occurrences of a pattern in a string
 #' 
-#' \code{MatchPattern} returns the indices (starting at 0) of all starting positions in the string \code{genome} where the string \code{pattern} appears as a substring. Indexing from 0 is used to match the book. Note that code\{MatchPattern} returns overlapping matches unlike \code{\link{gregexpr}} which only returns disjoint matches.
+#' \code{PatternMatch} returns the indices (starting at 0) of all starting positions in the string \code{genome} where the string \code{pattern} appears as a substring. Indexing from 0 is used to match the book. Note that code\{PatternMatch} returns overlapping matches unlike \code{\link{gregexpr}} which only returns disjoint matches.
 #' 
 #' @param pattern string to be searched for
 #' @param genome string where occurences of \code{pattern} will be searched for
 #' @examples
-#' MatchPattern("AA", "CAAAT")
-#' MatchPattern("TCA", "ATGATCAAG")
-MatchPattern <- function(pattern, genome){
+#' PatternMatch("AA", "CAAAT")
+#' PatternMatch("TCA", "ATGATCAAG")
+PatternMatch <- function(pattern, genome){
 	# gregexpr returns disjoint matches only so perl regular expression with look-ahead assertion (?=...) is necessary
 	match_location <- as.integer(gregexpr(paste0("(?=", pattern, ")"), genome, ignore.case = TRUE, perl = TRUE)[[1]])
 	# to match indexing from 0 in book
 	return(match_location - 1)
 }
-# writeClipboard(paste0(as.character(MatchPattern(readLines("dataset_3_5.txt")[[1]], readLines("dataset_3_5.txt")[[2]])), collapse = " "))
-
-cholerae <- readLines("vibrio_cholerae.txt")
+# writeClipboard(paste0(as.character(PatternMatch(readLines("dataset_3_5.txt")[[1]], readLines("dataset_3_5.txt")[[2]])), collapse = " "))
+#cholerae <- readLines("vibrio_cholerae.txt")
 
 #' Find patterns forming clumps in a string
 #' 
@@ -287,7 +286,7 @@ ClumpFinding <- function(genome, k, t, L){
 
 #' Find location of minimum skew
 #' 
-#' \code{FindMinimumSkew} finds the location \emph{i} in a character string which has the lowest value of \eqn{\text{Skew_i}(\text{Genome})}. Skew_i(Genome) is defined as the difference between the total number of occurrences of G and the total number of occurrences of C in the first \emph{i} nucleotides of \code{Genome}. Skew_0(Genome) is defined as 0. Note that indexing starts at 1, i.e. FindMiniumSkew("CG") returns 1.
+#' \code{FindMinimumSkew} finds the location \emph{i} in a character string which has the lowest value of \eqn{\text{Skew}_i(\text{Genome})}. Skew_i(Genome) is defined as the difference between the total number of occurrences of G and the total number of occurrences of C in the first \emph{i} nucleotides of \code{Genome}. Skew_0(Genome) is defined as 0. Note that indexing starts at 1, i.e. FindMiniumSkew("CG") returns 1.
 #' 
 #' @param genome character string consisting only of the characters A, C, G, or T
 #' @examples
@@ -313,3 +312,72 @@ FindMinimumSkew <- function(genome){
 	return(oriC)
 }
 
+#' Compute the Hamming distance between two strings.
+#' 
+#' \code{HammingDistance} returns the Hamming distance between two string \code{p} and \code{q} of equal length.
+#' 
+#' We say that the position \emph{i} in \emph{k}-mers \eqn{p_1 \cdots p_k} is a mismatch if \eqn{p_i \neq q_i}. The Hamming distance between \emph{p} and \emph{k} is defined number of mismatches between these two strings.
+#' 
+#' @param p character string of equal length to q
+#' @param q character string of equal length to p
+#' @examples
+#' HammingDistance("ATGATCAAG", "ATGATCAAC")
+#' HammingDistance("ATGATCAAG", "ATGCTCAAC")
+#' HammingDistance("ATGATCAAG", "ATGCTCGAC")
+HammingDistance <- function(p, q){
+	p_vec <- strsplit(p, "")[[1]]
+	q_vec <- strsplit(q, "")[[1]]
+	mismatches <- sum(p_vec != q_vec)
+	return(mismatches)
+}
+
+#' Find all approximate occurrences of a pattern in a string
+#' 
+#' \code{ApproximatePatternMatch} returns the indices (starting at 0) of all starting positions in the string \code{text} where the string \code{pattern} appears as a substring with up to \emph{d} mismatches (i.e. differs \code{pattern} has a maximum Hamming distance of \emph{d} from the substring of \code{text} at that position). Indexing from 0 is used to match the book. Note that code\{ApproximatePatternMatch} returns overlapping matches like \link\code{PatternMatch} and unlike \code{\link{gregexpr}} which only returns disjoint matches.
+#' 
+#' @param pattern string to be approximately searched for
+#' @param text string where occurences of \code{pattern} will be searched for
+#' @param d integer giving allowed number of mismatches (i.e. maximum Hamming distance for matches.
+#' @examples
+#' ApproximatePatternMatch("AAAAA", "AACAAGCATAAACATTAAAGAG", 1)
+#' ApproximatePatternMatch("TCA", "ATGATCAAG", 1)
+ApproximatePatternMatch <- function(pattern, text, d){
+	indices <- 1:(nchar(text) - nchar(pattern) + 1)
+	substrings <- substring(text, indices, indices + nchar(pattern) - 1)
+	hamming_distance <- numeric(length(substrings))
+
+	# compute Hamming distances
+	for (i in 1:length(hamming_distance)){
+		hamming_distance[i] <- HammingDistance(pattern, substrings[i])
+	}
+
+	matches <- which(hamming_distance <= d)
+	# index from 0
+	return(matches - 1)
+}
+
+#' Count the number of approximate occurrences of a given k-mer pattern in a string
+#' 
+#' \code{ApproximatePatternCount} returns the number of approximate occurrences of \code{pattern} in the string \code{text}. By approximate occurrences we mean substrings of \code{text} such that the Hamming distance between the substring and \code{pattern} is at most \emph{d} (i.e. there are at most \emph{d} mismatches between the two strings).
+#' 
+#' @param text character string to be scanned for approximate occurrences of the string \code{pattern}
+#' @param pattern character string to be approximately matched in the given character string
+#' @param d integer giving the maximum number of allowed mismatches for an approximate match
+#' @examples
+#' ApproximatePatternCount("AACAAGCATAAACATTAAAGAG", "AAAAA", 1)
+ApproximatePatternCount <- function(text, pattern, d){
+	count <- 0
+	for (i in 1:(nchar(text) - nchar(pattern) + 1)) {
+		subtext <- substring(text, i, i + nchar(pattern) - 1)
+		if (HammingDistance(pattern, subtext) <= d) {
+			count <- count + 1
+		}
+	}
+	return(count)
+}
+
+
+@param pattern string
+@param d integer
+Neighbors <- function(pattern, d){
+}
