@@ -1,0 +1,13 @@
+Package: compeau.pevzner
+Title: An Implementation of Bioinformatics Algorithms by Compeau and Pevzner
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Shannon",
+           family = "Largman",
+           role = c("aut", "cre"),
+           email = "shannon.largman@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: An implemenation of the exercises and algorithms from Bioinformatics Algorithms in R.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
