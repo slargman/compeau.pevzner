@@ -64,7 +64,7 @@ SymbolToNumber <- function(symbol){
 #' 
 #' \code{PatternToNumber} transforms a character string consisting of the symbols A, C, G, and T (eg a DNA sequence) into an integer representing its lexicographic order. Note that the indexing starts at 0 to correspond with the indexing used in the book. Inverse function of \code{\link{NumberToPattern}}.
 #' 
-#' Note that \code{PatternToNumber} is NOT vectorized whereas \code{\link{NumberToPattern} is vectorized.
+#' Note that \code{PatternToNumber} is NOT vectorized whereas \code{\link{NumberToPattern}} is vectorized.
 #' 
 #' @param pattern character string consisting only of the characters A, C, G, or T
 #' @examples
@@ -186,7 +186,7 @@ FindingFrequentWordsBySorting <- function(text, k){
 
 #' Give the complement nucleotide for a given nucleotide
 #' 
-#' \code{NucleotideComplement) returns the nucleotide that is the complement to a given nucleotide, i.e. returns T, G, C, and A for A, C, G, and T respectively. Can operate on a vector, returning a vector of the complements.
+#' \code{NucleotideComplement} returns the nucleotide that is the complement to a given nucleotide, i.e. returns T, G, C, and A for A, C, G, and T respectively. Can operate on a vector, returning a vector of the complements.
 #' 
 #' @param nucleotide character vector with each element equal to A, C, G, or T
 #' @examples
@@ -201,8 +201,8 @@ NucleotideComplement <- function(nucleotide){
 }
 
 #' Give the complement nucleotide sequence for given nucleotide pattern
-#' 
-#' \code{NucleotideComplement) returns the nucleotide squence that is the reverse complement to a given nucleotide pattern. If the nucleotide pattern is written from 5' to 3', then \code{NucleotideComplement} returns the complementary sequence also written from 5' to 3'. Relies on \code{\link{NucleotideComplement}}.
+#'
+#' \code{ReverseComplement} returns the nucleotide squence that is the reverse complement to a given nucleotide pattern. If the nucleotide pattern is written from 5' to 3', then \code{ReverseComplement} returns the complementary sequence also written from 5' to 3'. Relies on \code{\link{NucleotideComplement}}.
 #' 
 #' @param pattern character string consisting of only the characters A, C, G, and T
 #' @examples
@@ -216,11 +216,12 @@ ReverseComplement <- function(pattern){
 }
 
 #' Find all occurrences of a pattern in a string
-#' 
-#' \code{PatternMatch} returns the indices (starting at 0) of all starting positions in the string \code{genome} where the string \code{pattern} appears as a substring. Indexing from 0 is used to match the book. Note that code\{PatternMatch} returns overlapping matches unlike \code{\link{gregexpr}} which only returns disjoint matches.
+#'
+#' \code{PatternMatch} returns the indices (starting at 0) of all starting positions in the string \code{genome} where the string \code{pattern} appears as a substring. Indexing from 0 is used to match the book. Note that \code{PatternMatch} returns overlapping matches unlike \code{\link{gregexpr}} which only returns disjoint matches.
 #' 
 #' @param pattern string to be searched for
 #' @param genome string where occurences of \code{pattern} will be searched for
+
 #' @examples
 #' PatternMatch("AA", "CAAAT")
 #' PatternMatch("TCA", "ATGATCAAG")
@@ -233,7 +234,7 @@ PatternMatch <- function(pattern, genome){
 
 #' Find patterns forming clumps in a string
 #' 
-#' \code{WorseClumpFinding} finds all distinct \emph{k}-mers (strings of length \emph{k}) that form (\emph{L},\emph{t})-clumps in \code{genome}. A \emph{k}-mer \code{pattern} forms an (\emph{L},\emph{t})-clump inside a (longer) string \code{genome} if there is an interval of \code{genome} of length \emph{L} in which this \emph{k}-mer appears at least \emph{t} times (assumes that the \emph{k}-mer completely fits in the interval). Differs from \code{\link{ClumpFinding}} in that \code{ClumpFinding} is faster since it only calculates the frequency array using \code{\link{ComputingFrequencies}} once then updates it for each window of \code{genome} of length \emph{L}, whereas \code{WorseClumpFinding} uses \code{\link{ComputingFrequencies}} to calculate the frequency array from scratch for each window of length L.
+#' \code{WorseClumpFinding} finds all distinct \emph{k}-mers (strings of length \emph{k}) that form (\emph{L}, \emph{t})-clumps in \code{genome}. A \emph{k}-mer \code{pattern} forms an (\emph{L}, \emph{t})-clump inside a (longer) string \code{genome} if there is an interval of \code{genome} of length \emph{L} in which this \emph{k}-mer appears at least \emph{t} times (assumes that the \emph{k}-mer completely fits in the interval). Differs from \code{\link{ClumpFinding}} in that \code{ClumpFinding} is faster since it only calculates the frequency array using \code{\link{ComputingFrequencies}} once then updates it for each window of \code{genome} of length \emph{L}, whereas \code{WorseClumpFinding} uses \code{\link{ComputingFrequencies}} to calculate the frequency array from scratch for each window of length L.
 #' 
 #' @param genome character string consisting only of the characters A, C, G, and T
 #' @param k integer giving length of k-mers to be checked for clumps
@@ -255,7 +256,7 @@ WorseClumpFinding <- function(genome, k, t, L){
 
 #' Find patterns forming clumps in a string
 #' 
-#' \code{ClumpFinding} finds all distinct \emph{k}-mers (strings of length \emph{k}) that form (\emph{L},\emph{t})-clumps in \code{genome}. A \emph{k}-mer \code{pattern} forms an (\emph{L},\emph{t})-clump inside a (longer) string \code{genome} if there is an interval of \code{genome} of length \emph{L} in which this \emph{k}-mer appears at least \emph{t} times (assumes that the \emph{k}-mer completely fits in the interval).
+#' \code{ClumpFinding} finds all distinct \emph{k}-mers (strings of length \emph{k}) that form (\emph{L}, \emph{t})-clumps in \code{genome}. A \emph{k}-mer \code{pattern} forms an (\emph{L}, \emph{t})-clump inside a (longer) string \code{genome} if there is an interval of \code{genome} of length \emph{L} in which this \emph{k}-mer appears at least \emph{t} times (assumes that the \emph{k}-mer completely fits in the interval).
 #' 
 #' @param genome character string consisting only of the characters A, C, G, and T
 #' @param k integer giving length of k-mers to be checked for clumps
@@ -335,7 +336,7 @@ HammingDistance <- function(p, q){
 
 #' Find all approximate occurrences of a pattern in a string
 #' 
-#' \code{ApproximatePatternMatch} returns the indices (starting at 0) of all starting positions in the string \code{text} where the string \code{pattern} appears as a substring with up to \emph{d} mismatches (i.e. differs \code{pattern} has a maximum Hamming distance of \emph{d} from the substring of \code{text} at that position). Indexing from 0 is used to match the book. Note that code\{ApproximatePatternMatch} returns overlapping matches like \link\code{PatternMatch} and unlike \code{\link{gregexpr}} which only returns disjoint matches.
+#' \code{ApproximatePatternMatch} returns the indices (starting at 0) of all starting positions in the string \code{text} where the string \code{pattern} appears as a substring with up to \emph{d} mismatches (i.e. differs \code{pattern} has a maximum Hamming distance of \emph{d} from the substring of \code{text} at that position). Indexing from 0 is used to match the book. Note that \code{ApproximatePatternMatch} returns overlapping matches like \code{\link{PatternMatch}} and unlike \code{\link{gregexpr}} which only returns disjoint matches.
 #' 
 #' @param pattern string to be approximately searched for
 #' @param text string where occurences of \code{pattern} will be searched for
