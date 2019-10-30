@@ -539,3 +539,51 @@ FindingFrequentWordsWithMismatchesBySorting <- function(text, k, d){
 	frequent_patterns <- NumberToPattern(sorted_index[count == max_count], k)
 	return(frequent_patterns)
 }
+
+#' Find the most frequent \emph{k}-mer with mismatches and reverse complements
+#' 
+#' \code{FrequentWordsWithMismatchesAndComplements} returns the string (or set of strings) of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer with up to \emph{d} mismatches and reverse complements in the string \code{text}. A most frequent \emph{k}-mer with up to \emph{d} mismatches in \code{text} is a string \code{pattern} that has the most appearances with up to \emph{d} mismatches in \code{text} (i.e. maximizing \code{\link{ApproximatePatternCount}}(text, pattern, d)) among all \emph{k}-mers. This function differs from \code{\link{FrequentWordsWithMismatches}} in that this function also counts appearances of the reverse complement of the string with up to \emph{d} mismatches (i.e. maximizing the sum \code{\link{ApproximatePatternCount}(text, pattern, d) + \link{ApproximatePatternCount}(text, \link{ReverseComplement}(pattern), d)}.
+#' 
+#' Note that \code{pattern} does not need to actually appear as a substring in \code{text}.
+#' 
+#' @param text A character string.
+#' @param k A positive integer which gives the length of \emph{k}-mers to be searched for matches in the string.
+#' @param d A positive integer which gives the maximum number of mismatches allowed in a matching string.
+#' @return A character vector of all the most frequent \emph{k}-mers with up to \emph{d} mismatches and reverse complements in \code{text}.
+#' @examples
+#' FrequentWordsWithMismatchesAndComplements("ACAACTATGCATACTATCGGGAACTATCCT", 5, 2)
+#' FrequentWordsWithMismatchesAndComplements("CGATATATCCATAG", 3, 1)
+#' FrequentWordsWithMismatchesAndComplements("AACAAGCATAAACATTAAAGAG", 5, 1)
+FrequentWordsWithMismatchesAndComplements <- function(text, k, d){
+	frequent_patterns <- character(0)
+	close <- logical(4^k)
+	frequency_array <- integer(4^k)
+
+	# find which strings are close to k-mers in text
+	for (i in 1:(nchar(text) - k + 1)) {
+		neighborhood <- Neighbors(substring(text, i, i + k - 1), d)
+		for (pattern in neighborhood) {
+			index <- PatternToNumber(pattern) + 1
+			close[index] <- TRUE
+		}
+	}
+
+	# count approximate matches with complements for close strings
+	for (i in which(close)){
+		pattern <- NumberToPattern(i - 1, k)
+		complement <- ReverseComplement(pattern)
+		frequency_array[i] <- ApproximatePatternCount(text, pattern, d) + ApproximatePatternCount(text, complement, d)
+	}
+
+	# add strings with maximal matches and their complements
+	max_count <- max(frequency_array)
+	for (i in which(frequency_array == max_count)) {
+		pattern <- NumberToPattern(i - 1, k) 
+		complement <- ReverseComplement(pattern)
+		frequent_patterns <- c(frequent_patterns, pattern, complement)
+	}
+
+	# can have duplicates from adding pattern and complement each time
+	frequent_patterns <- sort(unique(frequent_patterns))
+	return(frequent_patterns)
+}
