@@ -226,8 +226,6 @@ PatternMatch <- function(pattern, genome){
 	# to match indexing from 0 in book
 	return(match_location - 1)
 }
-# writeClipboard(paste0(as.character(PatternMatch(readLines("dataset_3_5.txt")[[1]], readLines("dataset_3_5.txt")[[2]])), collapse = " "))
-#cholerae <- readLines("vibrio_cholerae.txt")
 
 #' Find patterns forming clumps in a string
 #' 
@@ -376,8 +374,82 @@ ApproximatePatternCount <- function(text, pattern, d){
 	return(count)
 }
 
+#' Generate the 1-neighborhood of a string
+#' 
+#' \code{ImmediateNeighbors} returns the set of all strings that are in the 1-neighborhood of the string \code{pattern}, i.e. that differ from \code{pattern} in at most one position. The \emph{d}-neighborhood of a \emph{k}-mer \code{pattern} is the set of all \emph{k}-mers whose Hamming distance from \code{pattern} does not exceed \emph{d}.
+#' 
+#' This function is used in the definition of \code{\link{IterativeNeighbors}}.
+#' 
+#' @param pattern A character string.
+#' @examples
+#' ImmediateNeighbors("ACG")
+ImmediateNeighbors <- function(pattern){
+	nucleotides <- c("A", "C", "G", "T")
+	neighborhood <- pattern
+	for (i in 1:nchar(pattern)) {
+		symbol <- substring(pattern, i, i)
+		# iterate for each nucleotide different from symbol
+		for (nuc in nucleotides[nucleotides != symbol]) {
+			neighbor <- pattern
+			substring(neighbor, i, i) <- nuc
+			neighborhood <- c(neighborhood, neighbor)
+		}
+	}
+	return(neighborhood)
+}
 
-@param pattern string
-@param d integer
+#' Generate the d-neighborhood of a string
+#' 
+#' \code{Neighbors} returns the set of all strings that are in the \emph{d}-neighborhood of the string \code{pattern}. The \emph{d}-neighborhood of a \emph{k}-mer \code{pattern} is the set of all \emph{k}-mers whose Hamming distance from \code{pattern} does not exceed \emph{d}.
+#' 
+#' @param pattern A string.
+#' @param d A positive integer giving the maximum Hamming distance for the neighborhood.
+#' @examples
+#' Neighbors("A", 1)
+#' Neighbors("ACG", 2)
 Neighbors <- function(pattern, d){
+	nucleotides <- c("A", "C", "G", "T")
+	# for exact matches
+	if (identical(d, 0)){
+		return(pattern)
+	}
+	# nchar returns integer rather than numeric class
+	if (identical(nchar(pattern), as.integer(1))){
+		return(nucleotides)
+	}
+	neighborhood <- character(0)
+	first_symbol <- substring(pattern, 1, 1)
+	suffix <- substring(pattern, 2, nchar(pattern))
+	suffix_neighbors <- Neighbors(suffix, d)
+	# modify neighborhood of pattern's suffix
+	for (text in suffix_neighbors){
+		if (HammingDistance(suffix, text) < d) {
+			neighborhood <- c(neighborhood, paste0(nucleotides, text))
+		} else {
+			neighborhood <- c(neighborhood, paste0(first_symbol, text))
+		}
+	}
+	return(neighborhood)
+}
+
+#' Generate the d-neighborhood of a string using an iterative algorithm
+#' 
+#' \code{IterativeNeighbors} returns the set of all strings that are in the \emph{d}-neighborhood of the string \code{pattern}. The \emph{d}-neighborhood of a \emph{k}-mer \code{pattern} is the set of all \emph{k}-mers whose Hamming distance from \code{pattern} does not exceed \emph{d}.
+#' 
+#' \code{IterativeNeighbors} differs from \code{\link{Neighbors}} in that \code{IterativeNeighbors} uses an iterative algorithm whereas \code{\link{Neighbors}} uses a recursive algorithm.
+#' 
+#' @param pattern A string.
+#' @param d A positive integer giving the maximum Hamming distance for the neighborhood.
+#' @examples
+#' IterativeNeighbors("A", 1)
+#' IterativeNeighbors("ACG", 2)
+IterativeNeighbors <- function(pattern, d){
+	neighborhood <- pattern
+	for (j in 1:d) {
+		for (neighbor in neighborhood) {
+			neighborhood <- c(neighborhood, ImmediateNeighbors(neighbor))
+			neighborhood <- unique(neighborhood)
+		}
+	}
+	return(neighborhood)
 }
