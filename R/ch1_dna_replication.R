@@ -18,7 +18,7 @@ PatternCount <- function(text, pattern){
 
 #' Find the most frequent \emph{k}-mer in a character string
 #' 
-#' \code{FrequentWords} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}
+#' \code{FrequentWords} returns the string of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer in the string \code{text}.
 #' 
 #' @param text character string
 #' @param k integer which gives the length of \emph{k}-mer
@@ -64,6 +64,8 @@ SymbolToNumber <- function(symbol){
 #' 
 #' \code{PatternToNumber} transforms a character string consisting of the symbols A, C, G, and T (eg a DNA sequence) into an integer representing its lexicographic order. Note that the indexing starts at 0 to correspond with the indexing used in the book. Inverse function of \code{\link{NumberToPattern}}.
 #' 
+#' Note that \code{PatternToNumber} is NOT vectorized whereas \code{\link{NumberToPattern} is vectorized.
+#' 
 #' @param pattern character string consisting only of the characters A, C, G, or T
 #' @examples
 #' PatternToNumber("AGT")
@@ -94,6 +96,8 @@ NumberToSymbol <- function(index){
 #' Converts integer index to corresponding nucleotide sequence
 #' 
 #' \code{NumberToPattern} takes an integer \code{index} and converts it to the nucleotide of length \code{k} that has that index among \emph{k}-mers arranged by lexicographic order. Note that indexing starts at 0 to correspond with the indexing convention used in the book. Inverse function of \code{\link{PatternToNumber}}.
+#' 
+#' Note that \code{NumberToPattern} is vectorized whereas \code{\link{PatternToNumber}} is NOT.
 #' 
 #' @param index integer which give the lexicographic order of the \emph{k}-mer pattern to be found
 #' @param k integer which gives length of nucleotide sequence
@@ -452,4 +456,86 @@ IterativeNeighbors <- function(pattern, d){
 		}
 	}
 	return(neighborhood)
+}
+
+#' Find the most frequent \emph{k}-mer with up to d mismatches in a character string 
+#' 
+#' \code{FrequentWordsWithMismatches} returns the string (or set of strings) of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer with up to \emph{d} mismatches in the string \code{text}. A most frequent \emph{k}-mer with up to \emph{d} mismatches in \code{text} is a string \code{pattern} that has the most appearances with up to \emph{d} mismatches in \code{text} (i.e. maximizing \code{\link{ApproximatePatternCount}}(text, pattern, d)) among all \emph{k}-mers.
+#' 
+#' Note that \code{pattern} does not need to actually appear as a substring in \code{text}
+#' 
+#' @param text A character string.
+#' @param k A positive integer which gives the length of \emph{k}-mers to be searched.
+#' @param d A positive integer which gives the maximum number of mismatches allowed in a matching string.
+#' @return A character vector of all the most frequent \emph{k}-mers with up to \emph{d} mismatches in \code{text}.
+#' @examples
+#' FrequentWordsWithMismatches("ACAACTATGCATACTATCGGGAACTATCCT", 5, 2)
+#' FrequentWordsWithMismatches("CGATATATCCATAG", 3, 1)
+#' FrequentWordsWithMismatches("AACAAGCATAAACATTAAAGAG", 5, 1)
+FrequentWordsWithMismatches <- function(text, k, d){
+	frequent_patterns <- character(0)
+	close <- logical(4^k)
+	frequency_array <- integer(4^k)
+
+	# find which strings are close to k-mers in text
+	for (i in 1:(nchar(text) - k + 1)) {
+		neighborhood <- Neighbors(substring(text, i, i + k - 1), d)
+		for (pattern in neighborhood) {
+			index <- PatternToNumber(pattern) + 1
+			close[index] <- TRUE
+		}
+	}
+
+	# count approximate matches for close strings
+	for (i in which(close)){
+		pattern <- NumberToPattern(i - 1, k)
+		frequency_array[i] <- ApproximatePatternCount(text, pattern, d)
+	}
+
+	# add strings with maximal matches
+	max_count <- max(frequency_array)
+	for (i in which(frequency_array == max_count)) {
+		pattern <- NumberToPattern(i - 1, k) 
+		frequent_patterns <- c(frequent_patterns, pattern)
+	}
+
+	return(frequent_patterns)
+}
+
+#' Find the most frequent \emph{k}-mer with up to d mismatches in a character string
+#' 
+#' \code{FindingFrequentWordsWithMismatchesBySorting} returns the string (or set of strings) of length \emph{k} (\emph{k}-mer) that is the most frequent \emph{k}-mer with up to \emph{d} mismatches in the string \code{text}. A most frequent \emph{k}-mer with up to \emph{d} mismatches in \code{text} is a string \code{pattern} that has the most appearances with up to \emph{d} mismatches in \code{text} (i.e. maximizing \code{\link{ApproximatePatternCount}}(text, pattern, d)) among all \emph{k}-mers.
+#' 
+#' Note that \code{pattern} does not need to actually appear as a substring in \code{text}.
+#' 
+#' Differs from \code{\link{FrequentWordsWithMismatches}} by using an index that lists the \emph{k}-mers with up to \emph{d} mismatches that occur in \code{text} in the order they appear using their lexicographic indices. This index is then sorted to find the most frequent \emph{k}-mers.
+#'
+#' @param text A character string.
+#' @param k A positive integer which gives the length of \emph{k}-mers to be searched.
+#' @param d A positive integer which gives the maximum number of mismatches allowed in a matching string.
+#' @return A character vector of all the most frequent \emph{k}-mers with up to \emph{d} mismatches in \code{text}.
+#' @examples
+#' FindingFrequentWordsWithMismatchesBySorting("ACAACTATGCATACTATCGGGAACTATCCT", 5, 2)
+#' FindingFrequentWordsWithMismatchesBySorting("CGATATATCCATAG", 3, 1)
+#' FindingFrequentWordsWithMismatchesBySorting("AACAAGCATAAACATTAAAGAG", 5, 1)
+FindingFrequentWordsWithMismatchesBySorting <- function(text, k, d){
+	neighborhoods <- character(0)
+	index <- integer(0)
+	for (i in 1:(nchar(text) - k + 1)) {
+		neighborhoods <- c(neighborhoods, Neighbors(substring(text, i, i + k - 1), d))
+	}
+	for (i in seq_along(neighborhoods)) {
+		pattern <- neighborhoods[i]
+		index[i] <- PatternToNumber(pattern)
+	}
+	count <- rep(1, length(neighborhoods))
+	sorted_index <- sort(index)
+	for (i in seq_along(neighborhoods)) {
+		if (identical(sorted_index[i], sorted_index[i + 1])) {
+				count[i + 1] <- count[i] + 1
+		}
+	}
+	max_count <- max(count)
+	frequent_patterns <- NumberToPattern(sorted_index[count == max_count], k)
+	return(frequent_patterns)
 }
