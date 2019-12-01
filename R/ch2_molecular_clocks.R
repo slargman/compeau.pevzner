@@ -106,3 +106,41 @@ MedianString <- function(dna, k){
 	}
 	return(median_string)
 }
+
+#' Find a Profile-most probable \emph{k}-mer in a string
+#' 
+#' \code{ProfileMostProbableString} finds the \emph{k}-mer substring in a string \code{text} that is the most probable string according to the probability distribution defined in \code{profile}. The matrix \code{profile} is 4 by \emph{k}, with the \emph{i}th column giving the probability distribution for the \emph{i}th character in a \emph{k}-mer and the rows corresponding to probabilities for A, C, G, and T respectively.
+#' 
+#' If there are multiple \code{profile}-most probable \emph{k}-mers in \code{text}, then the first such \emph{k}-mer occurring in \code{text} is selected.
+#' 
+#' @param text A string to be searched for the profile-most probable substring.
+#' @param k An integer giving the length of the profile-most probable substring.
+#' @param profile A 4 by \emph{k} matrix giving the probability of each nucleotide in a position.
+#' @return A string giving a \code{profile}-most probable \emph{k}-mer in \code{text}.
+#' @examples
+#' text <- "ACCTGTTTATTGCCTAAGTTCCGAACAAACCCAATATAGCCCGAGGGCCT"
+#' k <- 5
+#' A <- c(0.2, 0.2, 0.3, 0.2, 0.3)
+#' C <- c(0.4, 0.3, 0.1, 0.5, 0.1)
+#' G <- c(0.3, 0.3, 0.5, 0.2, 0.4)
+#' T <- c(0.1, 0.2, 0.1, 0.1, 0.2)
+#' profile <- rbind(A, C, G, T)
+#' ProfileMostProbableString(text, k, profile)
+ProfileMostProbableString <- function(text, k, profile){
+	probability <- numeric(0)
+	subtext_probability <- numeric(k)
+	for (i in 1:(nchar(text) - k + 1)) {
+		subtext <- substring(text, i, i + k - 1)
+		subtext_vector <- strsplit(subtext, split = '')[[1]]
+		subtext_numbers <- SymbolToNumber(subtext_vector) + 1
+		for (j in 1:k) {
+			subtext_probability[j] <- profile[subtext_numbers[j], j]
+		}
+		probability[i] <- prod(subtext_probability)
+	}
+	max_probability <- max(probability)
+	index <- which(probability == max_probability)[1]
+	most_probable_string <- substring(text, index, index + k - 1)
+	return(most_probable_string)
+}
+
