@@ -176,7 +176,7 @@ ColumnCount <- function(column){
 	C_count <- sum(column == "C")
 	G_count <- sum(column == "G")
 	T_count <- sum(column == "T")
-	count <- as.matrix(c(A_count, C_count, G_count, T_count))
+	count <- matrix(c(A_count, C_count, G_count, T_count))
 	return(count)
 }
 
@@ -193,9 +193,12 @@ ColumnCount <- function(column){
 #' motifs <- MotifMatrix(motifs)
 #' MotifCount(motifs)
 MotifCount <- function(motifs){
-	motifs <- as.matrix(motifs)
-	if (identical(dim(motifs), NULL)) {
+	# vector returns NULL for nrow()
+	if (is.null(dim(motifs))) {
+		stop("MotifCount requires a matrix")
+	}
 	motif_count <- apply(motifs, 2, FUN = ColumnCount)
+	row.names(motif_count) <- c("A", "C", "G", "T")
 	return(motif_count)
 }
 
@@ -266,9 +269,12 @@ MotifScore <- function(motifs){
 #' motifs <- MotifMatrix(motifs)
 #' MotifProfile(motifs)
 MotifProfile <- function(motifs){
-	counts <- MotifCount(motifs)
 	# vector returns NULL for nrow()
-	rows <- nrow(as.matrix(motifs))
+	if (is.null(dim(motifs))) {
+		stop("MotifProfile requires a matrix")
+	}
+	counts <- MotifCount(motifs)
+	rows <- nrow(motifs)
 	motif_profile <- counts / rows
 	return(motif_profile)
 }
