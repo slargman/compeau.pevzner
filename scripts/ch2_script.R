@@ -37,3 +37,13 @@ dna <- dataset[-1]
 answer <- GreedyMotifSearch(dna, k, t)
 output <- apply(answer, MARGIN = 1, function(x) paste(x, collapse = ""))
 writeClipboard(output)
+
+#2E
+dataset <- readLines("../data/rosalind_ba2e.txt")
+numbers <- as.numeric(strsplit(dataset[1], split = " ")[[1]])
+k <- numbers[1]
+t <- numbers[2]
+dna <- dataset[-1]
+answer <- GreedyMotifSearchPseudocounts(dna, k, t)
+output <- apply(answer, MARGIN = 1, function(x) paste(x, collapse = ""))
+writeClipboard(output)
