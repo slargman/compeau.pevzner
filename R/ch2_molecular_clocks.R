@@ -438,13 +438,10 @@ GreedyMotifSearchPseudocounts <- function(dna, k, t = length(dna)){
 #' dna <- c(s1, s2, s3, s4, s5)
 #' motifs <- RandomizedMotifSearch(dna, k, t, iter = 1000)
 RandomizedMotifSearch <- function(dna, k, t = length(dna), iter = 1){
-	dna_nchar <- matrix(nchar(dna) - k + 1)
-	first <- apply(dna_nchar, MARGIN = 1, FUN = function(x) sample(x = x, size = 1))
-	top_motifs <- MotifMatrix(substring(dna, first = first, last = first + k - 1))
+	top_motifs <- MotifMatrix(RandomSubstrings(dna, k))
 	for (i in 1:iter) {
 		# elements of dna might have different lengths
-		first <- apply(dna_nchar, MARGIN = 1, FUN = function(x) sample(x = x, size = 1))
-		motifs <- MotifMatrix(substring(dna, first = first, last = first + k - 1))
+		motifs <- MotifMatrix(RandomSubstrings(dna, k))
 		best_motifs <- motifs
 		repeat {
 			motif_profile <- MotifProfilePseudocounts(motifs)
@@ -461,4 +458,26 @@ RandomizedMotifSearch <- function(dna, k, t = length(dna), iter = 1){
 		}
 	}
 	return(top_motifs)
+}
+
+#' Randomly select a substring of a particular length
+#' 
+#' \code{RandomSubstrings} randomly selects a substring in each element of a character vector \code{strings}. The selection in each element is independent and a vector \code{prob} of probability weights for the selectable positions for the start of the substrings can be specified.
+#' 
+#' @param strings A character vector where each element has at least \code{k} characters.
+#' @param k An integer or integer vector giving the numbers of characters in the substrings.
+#' s1 <- "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA"
+#' s2 <- "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG"
+#' s3 <- "TAGTACCGAGACCGAAAGAAGTATACAGGCGT"
+#' s4 <- "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC"
+#' s5 <- "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
+#' strings <- c(s1, s2, s3, s4, s5)
+#' k <- 8
+#' nchar(s1)
+#' substrings <- RandomSubstrings(strings, k)
+#' substrings <- RandomSubstrings(strings, k, prob = c(1, rep(0, 24)))
+RandomSubstrings <- function(strings, k, prob = NULL){
+	strings_nchar <- nchar(strings) - k + 1
+	first <- sapply(strings_nchar, FUN = function(x) sample(x = x, size = 1, prob = prob))
+	motifs <- substring(strings, first = first, last = first + k - 1)
 }
