@@ -161,18 +161,18 @@ MotifMatrix <- function(motifs){
 
 #' Transform a motif matrix into a collection of strings
 #' 
-#' \code{MotifStrings} takes a motif matrix and collapses each row to generate the string represented by that row. It returns a character vector where each element of the vector corresponds to a row of the motif matrix.
+#' \code{MotifString} takes a motif matrix and collapses each row to generate the string represented by that row. It returns a character vector where each element of the vector corresponds to a row of the motif matrix.
 #' 
-#' If \code{motif_matrix} is \emph{t} by \emph{k}, \code{MotifStrings} produces a vector of length \emph{t}, where each element has \emph{k} characters.
+#' If \code{motif_matrix} is \emph{t} by \emph{k}, \code{MotifString} produces a vector of length \emph{t}, where each element has \emph{k} characters.
 #' 
-#' \code{MotifStrings} is the inverse of \code{\link{MotifMatrix}}.
+#' \code{MotifString} is the inverse of \code{\link{MotifMatrix}}.
 #' @param motif_matrix A character matrix containing only A, C, G, or T.
 #' @return A character vector.
 #' @examples
 #' motifs1 <- c("ATGAC","CGATG","CTGAT","ACGTC", "CACAC")
 #' motif_matrix <- MotifMatrix(motifs1)
-#' motifs2 <- MotifStrings(motif_matrix)
-MotifStrings <- function(motif_matrix){
+#' motifs2 <- MotifString(motif_matrix)
+MotifString <- function(motif_matrix){
 	motifs <- apply(motif_matrix, MARGIN = 1, FUN = function(x) paste(x, collapse = ""))
 	return(motifs)
 }
@@ -346,7 +346,7 @@ MotifProfilePseudocounts <- function(motifs){
 Motifs <- function(motif_profile, dna){
 	# check for motif matrix
 	if (!is.null(dim(dna))) {
-		dna <- MotifStrings(dna)
+		dna <- MotifString(dna)
 	}
 	k <- dim(motif_profile)[2]
 	motifs <- sapply(dna, FUN = function(text) ProfileMostProbableString(text, k, motif_profile), USE.NAMES = FALSE)
@@ -418,6 +418,28 @@ GreedyMotifSearchPseudocounts <- function(dna, k, t = length(dna)){
 	return(best_motifs)
 }
 
+#' Randomly select a substring of a particular length
+#' 
+#' \code{RandomSubstring} randomly selects a substring in each element of a character vector \code{strings}. The selection in each element is independent and a vector \code{prob} of probability weights for the selectable positions for the start of the substrings can be specified.
+#' 
+#' @param strings A character vector where each element has at least \code{k} characters.
+#' @param k An integer or integer vector giving the numbers of characters in the substrings.
+#' s1 <- "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA"
+#' s2 <- "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG"
+#' s3 <- "TAGTACCGAGACCGAAAGAAGTATACAGGCGT"
+#' s4 <- "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC"
+#' s5 <- "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
+#' strings <- c(s1, s2, s3, s4, s5)
+#' k <- 8
+#' nchar(s1)
+#' substrings <- RandomSubstring(strings, k)
+#' substrings <- RandomSubstring(strings, k, prob = c(1, rep(0, 24)))
+RandomSubstring <- function(strings, k, prob = NULL){
+	strings_nchar <- nchar(strings) - k + 1
+	first <- sapply(strings_nchar, FUN = function(x) sample(x = x, size = 1, prob = prob))
+	motifs <- substring(strings, first = first, last = first + k - 1)
+}
+
 #' Find motifs using a randomized algorithm
 #' 
 #' \code{RandomizedMotifSearch} searches a collection of strings \code{dna} for a motif \code{k} characters long using a randomized algorithm (see \code{\link{MotifEnumeration}} for an explanation of motifs) and pseudocounts (see \code{\link{MotifProfilePseudocounts}}). \code{RandomizedMotifSearch} returns a motif collection as represented by its motif matrix (as in \code{\link{MotifMatrix}}) where each row represents the string correpsonding to a motif occurrence.
@@ -438,10 +460,10 @@ GreedyMotifSearchPseudocounts <- function(dna, k, t = length(dna)){
 #' dna <- c(s1, s2, s3, s4, s5)
 #' motifs <- RandomizedMotifSearch(dna, k, t, iter = 1000)
 RandomizedMotifSearch <- function(dna, k, t = length(dna), iter = 1){
-	top_motifs <- MotifMatrix(RandomSubstrings(dna, k))
+	top_motifs <- MotifMatrix(RandomSubstring(dna, k))
 	for (i in 1:iter) {
 		# elements of dna might have different lengths
-		motifs <- MotifMatrix(RandomSubstrings(dna, k))
+		motifs <- MotifMatrix(RandomSubstring(dna, k))
 		best_motifs <- motifs
 		repeat {
 			motif_profile <- MotifProfilePseudocounts(motifs)
@@ -458,26 +480,4 @@ RandomizedMotifSearch <- function(dna, k, t = length(dna), iter = 1){
 		}
 	}
 	return(top_motifs)
-}
-
-#' Randomly select a substring of a particular length
-#' 
-#' \code{RandomSubstrings} randomly selects a substring in each element of a character vector \code{strings}. The selection in each element is independent and a vector \code{prob} of probability weights for the selectable positions for the start of the substrings can be specified.
-#' 
-#' @param strings A character vector where each element has at least \code{k} characters.
-#' @param k An integer or integer vector giving the numbers of characters in the substrings.
-#' s1 <- "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA"
-#' s2 <- "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG"
-#' s3 <- "TAGTACCGAGACCGAAAGAAGTATACAGGCGT"
-#' s4 <- "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC"
-#' s5 <- "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
-#' strings <- c(s1, s2, s3, s4, s5)
-#' k <- 8
-#' nchar(s1)
-#' substrings <- RandomSubstrings(strings, k)
-#' substrings <- RandomSubstrings(strings, k, prob = c(1, rep(0, 24)))
-RandomSubstrings <- function(strings, k, prob = NULL){
-	strings_nchar <- nchar(strings) - k + 1
-	first <- sapply(strings_nchar, FUN = function(x) sample(x = x, size = 1, prob = prob))
-	motifs <- substring(strings, first = first, last = first + k - 1)
 }
