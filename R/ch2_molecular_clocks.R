@@ -481,3 +481,45 @@ RandomizedMotifSearch <- function(dna, k, t = length(dna), iter = 1){
 	}
 	return(top_motifs)
 }
+
+#' Select a substring according to the distribution in a profile matrix
+#' 
+#' \code{ProfileRandomString} randomly selects a substring of the string \code{dna} according to the probability distribution implied by the profile matrix \code{motif_profile} (see \code{\link{MotifProfile}}). The conditional probability of each substring of \code{dna} is determined using the profile matrix and these conditional probabilities are normalized to a probability mass function which is used to randomly select a substring of \code{dna}.
+#' 
+#' \code{ProfileRandomString} can accept \code{dna} as either a string or the equivalent one row motif matrix (\code{\link{MotifMatrix}}).
+#' 
+#' @param dna A string containing at least \code{k} characters or a one row motif (character) matrix with at least \code{k} columns.
+#' @param motif_profile A 4 by k numeric matrix whose columns sum to 1.
+#' @param k An integer giving the numbers of characters in the substring.
+#' @examples
+#' s1 <- "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA"
+#' s2 <- "GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG"
+#' s3 <- "TAGTACCGAGACCGAAAGAAGTATACAGGCGT"
+#' s4 <- "TAGATCAAGTTTCAGGTGCACGTCGGTGAACC"
+#' s5 <- "AATCCACCAGCTCCACGTGCAATGTTGGCCTA"
+#' strings <- c(s1, s2, s3, s4, s5)
+#' motif_matrix <- MotifMatrix(strings)
+#' motif_profile <- MotifProfile(motif_matrix)
+#' k <- 8
+#' sub1 <- ProfileRandomString(s1, motif_profile, k)
+#' sub2 <- ProfileRandomString(motif_matrix[1, , drop = F], motif_profile, k)
+ProfileRandomString <- function(dna, motif_profile, k){
+	nucleotides <- 1:4
+	names(nucleotides) <- c("A", "C", "G", "T")
+	#ensure we have a matrix
+	if (is.null(dim(dna))) {
+		motif_matrix <- MotifMatrix(dna)
+	} else {
+		motif_matrix <- dna
+	}
+	motif_string <- MotifString(motif_matrix)
+	n <- ncol(motif_matrix) - k + 1
+	substring_probability <- numeric(n)
+	for(i in 1:n) {
+		nucleotides_num <- nucleotides[motif_matrix[1, i:(i + k - 1)]]
+		nucleotide_probability <- motif_profile[matrix(c(nucleotides_num, 1:k), ncol = 2)]
+		substring_probability[i] <- prod(nucleotide_probability)
+	}
+	random_string <- RandomSubstring(motif_string, k, prob = substring_probability)
+	return(random_string)
+}
