@@ -68,3 +68,11 @@ dna <- dataset[-1]
 answer <- GibbsSampler(dna, k, t, N, iter = 9)
 output <- MotifString(answer)
 writeClipboard(output)
+
+#2H
+dataset <- readLines("../data/rosalind_ba2h.txt")
+pattern <- dataset[1]
+dna <- strsplit(dataset[2], split = " ")[[1]]
+answer <- StringDistance(pattern, dna)
+output <- answer
+writeClipboard(output)
