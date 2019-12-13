@@ -35,7 +35,7 @@ k <- numbers[1]
 t <- numbers[2]
 dna <- dataset[-1]
 answer <- GreedyMotifSearch(dna, k, t)
-output <- MotifStrings(answer)
+output <- MotifString(answer)
 writeClipboard(output)
 
 #2E
@@ -45,7 +45,7 @@ k <- numbers[1]
 t <- numbers[2]
 dna <- dataset[-1]
 answer <- GreedyMotifSearchPseudocounts(dna, k, t)
-output <- MotifStrings(answer)
+output <- MotifString(answer)
 writeClipboard(output)
 
 #2F
@@ -55,5 +55,16 @@ k <- numbers[1]
 t <- numbers[2]
 dna <- dataset[-1]
 answer <- RandomizedMotifSearch(dna, k, t, iter = 300)
-output <- MotifStrings(answer)
+output <- MotifString(answer)
+writeClipboard(output)
+
+#2G
+dataset <- readLines("../data/rosalind_ba2g.txt")
+numbers <- as.numeric(strsplit(dataset[1], split = " ")[[1]])
+k <- numbers[1]
+t <- numbers[2]
+N <- numbers[3]
+dna <- dataset[-1]
+answer <- GibbsSampler(dna, k, t, N, iter = 9)
+output <- MotifString(answer)
 writeClipboard(output)
