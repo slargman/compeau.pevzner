@@ -37,3 +37,70 @@ StringFromGenomePath <- function(pattern){
 	}
 	return(text)
 }
+
+#' Extract the first \emph{k} - 1 characters of a \emph{k}-mer
+#'
+#' \code{Prefix} extracts the first \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}.
+#'
+#' \code{Prefix} is used in the implementation of \code{\link{OverlapGraph}}.
+#'
+#' @param pattern A string.
+#' @return A string consisting of all but the last character of \code{pattern}.
+#' @examples
+#' Prefix("AAT")
+Prefix <- function(pattern){
+	if (any(nchar(pattern) == 1)) {
+		stop("pattern must have more than 1 character")
+	}
+	k <- nchar(pattern)
+	prefix <- substring(pattern, 1, k - 1)
+	return(prefix)
+}
+
+#' Extract the last \emph{k} - 1 characters of a \emph{k}-mer
+#'
+#' \code{Suffix} extracts the last \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}.
+#'
+#' \code{Suffix} is used in the implementation of \code{\link{OverlapGraph}}.
+#'
+#' @param pattern A string.
+#' @return A string consisting of all but the first character of \code{pattern}.
+#' @examples
+#' Prefix("TAA")
+Suffix <- function(pattern){
+	if (any(nchar(pattern) == 1)) {
+		stop("pattern must have more than 1 character")
+	}
+	k <- nchar(pattern)
+	suffix <- substring(pattern, 2, k)
+	return(suffix)
+}
+
+#' Construct the overlap graph of a collection of strings
+#' 
+#' \code{OverlapGraph} generates the overlap graph of the collection of \emph{k}-mers in \code{pattern}, which is a directed graph. The nodes of this graph consist of all the \emph{k}-mers in \code{pattern}. An edge exists from \code{node1} to \code{node2} if the last \emph{k} - 1 characters of \code{node1} are the same as the first \emph{k} - 1 characters of \code{node2}, i.e. the \code{\link{Prefix}} of \code{node1} is equal to the \code{\link{Suffix}} of \code{node2}.
+#' 
+#' @param pattern A character vector where each element has the same number of characters.
+#' @return A list representing the overlap graph of the collection of \emph{k}-mers \code{pattern}. This list has two named elements. The element \code{graph\$nodes} contains a character vector listing the nodes of the graph. The element \code{graph\$edges} contains a two column character matrix where each row corresponds to an edge in the graph and the columns list the two nodes of an edge.
+#' @examples
+#' pattern <- c("ATGCG", "GCATG", "CATGC", "AGGCA", "GGCAT")
+#' OverlapGraph(pattern)
+OverlapGraph <- function(pattern){
+	n <- length(pattern)
+	node1 <- numeric(0)
+	node2 <- numeric(0)
+	prefixes <- Prefix(pattern)
+	for (node in pattern) {
+		suffix <- Suffix(node)
+		overlaps <- pattern[suffix == prefixes]
+		node1 <- c(node1, rep(node, length(overlaps)))
+		node2 <- c(node2, overlaps)
+	}
+	nodes <- sort(pattern)
+	edges <- matrix(c(node1, node2), ncol = 2)
+	colnames(edges) <- c("node1", "node2")
+	lexicographic <- order(node1, node2)
+	edges <- edges[lexicographic, ]
+	graph <- list(nodes = nodes, edges = edges)
+	return(graph)
+}
