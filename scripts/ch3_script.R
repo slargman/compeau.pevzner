@@ -14,5 +14,5 @@ writeClipboard(answer)
 # 3C
 pattern <- readLines("../data/rosalind_ba3c.txt")
 graph <- OverlapGraph(pattern)
-output <- paste(graph$edges[, "node1"], "->", graph$edges[, "node2"])
+output <- PrintEdges(graph)
 writeClipboard(output)
