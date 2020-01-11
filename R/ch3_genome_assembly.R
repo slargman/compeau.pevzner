@@ -2,7 +2,7 @@
 #' 
 #' Given a string \code{text}, its \emph{k}-mer composition is the collection of all \emph{k}-mer substrings of \code{text} (including repeated \emph{k}-mers. \code{StringComposition generates the \emph{k}-mer composition of a given string, listed in lexicographic order.
 #' 
-#' @param text A string.
+#' @param text A string (i.e. a DNA sequence consisting only of the characters A, C, G, or T)
 #' @param k An integer less than or equal to the number of characters in \code{text}
 #' @return A character vector listing all \emph{k}-mer substrings of \code{text} in lexicographic order.
 #' @examples
@@ -123,4 +123,29 @@ PrintEdges <- function(graph){
 		display[i] <- paste(display[i], "->", node2)
 	}
 	return(display)
+}
+
+#' Generate the path graph for a string
+#' 
+#' \code{PathGraph} generates the \code{k}mer path graph for a string \code{text} and specified \code{k}. Given a string \code{text}, the path graph of \code{k}mers for it is the path consisting of \code{nchar(text)} - \code{k} + 1 edges, where the \emph{i}-th edge of this path is labeled by the \emph{i}-th \code{k}-mer in \code{text} and the \emph{i}-th node of the path is labeled by the \emph{i}-th (\code{k} - 1)-mer in \code{text}.
+#' 
+#' @inheritParams StringComposition
+#' @return A list representing the path graph of the collection of \emph{k}-mers \code{pattern}. This list has two named elements. The element \code{graph\$nodes} contains a character vector listing the nodes of the graph. The element \code{graph\$edges} contains a three column character matrix where each row corresponds to an edge in the graph and the columns list respectively the outgoing node, the edge label, and the incoming node of an edge.
+#' @examples
+#' text <- "TAATGCCATGGGATGTT"
+#' k <- 3
+#' PathGraph(text, k)
+PathGraph <- function(text, k){
+	n <- nchar(text)
+	# edges labelled by kmers
+	edge_labels <- substring(text, 1:(n - k + 1), k:n)
+	# nodes labelled by (k - 1)mers
+	nodes <- substring(text, 1:(n - k + 2), (k - 1):n)
+	m <- length(nodes)
+	edges <- matrix(c(nodes[1:(m - 1)], edge_labels, nodes[2:m]), ncol = 3)
+	colnames(edges) <- c("node1", "label", "node2")
+	lexicographic <- order(edges[, "node1"], edges[, "node2"])
+	edges <- edges[lexicographic, ]
+	graph <- list(nodes = nodes, edges = edges)
+	return(graph)
 }
