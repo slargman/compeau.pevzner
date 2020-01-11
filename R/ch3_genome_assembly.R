@@ -127,7 +127,7 @@ PrintEdges <- function(graph){
 
 #' Generate the path graph for a string
 #' 
-#' \code{PathGraph} generates the \code{k}mer path graph for a string \code{text} and specified \code{k}. Given a string \code{text}, the path graph of \code{k}mers for it is the path consisting of \code{nchar(text)} - \code{k} + 1 edges, where the \emph{i}-th edge of this path is labeled by the \emph{i}-th \code{k}-mer in \code{text} and the \emph{i}-th node of the path is labeled by the \emph{i}-th (\code{k} - 1)-mer in \code{text}.
+#' \code{PathGraph} generates the \code{k}-mer path graph for a string \code{text} and specified \code{k}. Given a string \code{text}, the path graph of \code{k}-mers for it is the path consisting of \code{nchar(text)} - \code{k} + 1 edges, where the \emph{i}-th edge of this path is labeled by the \emph{i}-th \code{k}-mer in \code{text} and the \emph{i}-th node of the path is labeled by the \emph{i}-th (\code{k} - 1)-mer in \code{text}.
 #' 
 #' @inheritParams StringComposition
 #' @return A list representing the path graph of the collection of \emph{k}-mers \code{pattern}. This list has two named elements. The element \code{graph\$nodes} contains a character vector listing the nodes of the graph. The element \code{graph\$edges} contains a three column character matrix where each row corresponds to an edge in the graph and the columns list respectively the outgoing node, the edge label, and the incoming node of an edge.
@@ -137,9 +137,9 @@ PrintEdges <- function(graph){
 #' PathGraph(text, k)
 PathGraph <- function(text, k){
 	n <- nchar(text)
-	# edges labelled by kmers
+	# edges labelled by k-mers
 	edge_labels <- substring(text, 1:(n - k + 1), k:n)
-	# nodes labelled by (k - 1)mers
+	# nodes labelled by (k - 1)-mers
 	nodes <- substring(text, 1:(n - k + 2), (k - 1):n)
 	m <- length(nodes)
 	edges <- matrix(c(nodes[1:(m - 1)], edge_labels, nodes[2:m]), ncol = 3)
@@ -149,3 +149,40 @@ PathGraph <- function(text, k){
 	graph <- list(nodes = nodes, edges = edges)
 	return(graph)
 }
+
+#' Construct the De Bruijn graph for a string or k-mer collection
+#' 
+#' DeBruijnGraph generates the De Bruijn graph for either a string or a collection of strings of equal length.
+#' 
+#' In order to generate the De Bruijn graph for a string \code{text}, an integer \code{k} must be provided. In this case the De Bruijn graph is constructed by generating the path graph of \code{k}-mers for the string using \code{\link{PathGraph} and gluing together identical nodes (i.e. \code{k}-mers).
+#' 
+#' If \code{k} is not provided then the DeBruijnGraph will interpret \code{text} as a collection of \code{k}-mers (thus all the elements of \code{text} should have the same length) and generate the De Bruijn graph. In this case the nodes of the graph are all the unique (\code{k} - 1)-mers occurring as a prefix or suffix of the element of \code{text} (see \code{\link{Prefix}} and \code{\link{Suffix}}. For each \code{k}-mer in \code{text}, we connect its prefix node to its suffix node by a directed edge, and use the \code{k}-mer as the edge label.
+#' 
+#' @param text A string or a character vector where each element has the same number of characters.
+#' @inheritParams StringComposition
+#' @return A list representing the DeBruijn graph of the single string or collection of \emph{k}-mers \code{text}. This list has two named elements. The element \code{graph\$nodes} contains a character vector listing the nodes of the graph. The element \code{graph\$edges} contains a three column character matrix where each row corresponds to an edge in the graph and the columns list respectively the outgoing node, the edge label, and the incoming node of an edge.
+#' @examples
+#' k <- 4
+#' text <- "AAGATTCTCTAC"
+#' DeBruijnGraph(text, k)
+#' pattern <- c("GAGG", "CAGG", "GGGG", "GGGA", "CAGG", "AGGG", "GGAG")
+#' DeBruijnGraph(pattern)
+DeBruijnGraph <- function(text, k = NULL){
+	# check if constructing from k-mers
+	if (is.null(k)) {
+		prefix <- Prefix(text)
+		suffix <- Suffix(text) 
+		nodes <- sort(unique(c(prefix, suffix)))
+		edges <- matrix(c(prefix, text, suffix), ncol = 3)
+		colnames(edges) <- c("node1", "label", "node2")
+		lexicographic <- order(prefix, suffix)
+		edges <- edges[lexicographic, , drop = FALSE]
+		graph <- list(nodes = nodes, edges = edges)
+		return(graph)
+	} else {
+		graph <- PathGraph(text, k)
+		graph$nodes <- unique(graph$nodes)
+		return(graph)
+	}
+}
+

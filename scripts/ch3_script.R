@@ -16,3 +16,17 @@ pattern <- readLines("../data/rosalind_ba3c.txt")
 graph <- OverlapGraph(pattern)
 output <- PrintEdges(graph)
 writeClipboard(output)
+
+# 3D
+dataset <- readLines("../data/rosalind_ba3d.txt")
+k <- as.numeric(dataset[1])
+text <- dataset[2]
+graph <- DeBruijnGraph(text, k)
+output <- PrintEdges(graph)
+writeClipboard(output)
+
+# 3E
+patterns <- readLines("../data/rosalind_ba3e.txt")
+graph <- DeBruijnGraph(patterns)
+output <- PrintEdges(graph)
+writeClipboard(output)
