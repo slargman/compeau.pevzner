@@ -395,7 +395,7 @@ EulerianPath <- function(graph){
 #' 
 #' \code{StringFromComposition} reconstructs a string from its \emph{k}-mer composition by constructing the de Bruijn graph for the reads (see \code{\link{DeBruijnGraph}}), finding an Eulerian path in the graph (see \code{\link{EulerianPath}}), and generating the string for that path (see \code{\link{StringFromGenomePath}}). It is the inverse to \code{\link{StringComposition}}.
 #' 
-#' \code{StringComposition} can also be used for paired reads specified in the form "read1|read2" in which case an integer \code{d} must be provided specifying the gap length for the reads.
+#' \code{StringComposition} can also be used for paired reads specified in the form "read1|read2" in which case an integer \code{d} must be provided specifying the gap length for the reads. Read-pairs are pairs of reads separated by a fixed distance \code{d} in the genome.
 #' 
 #' @param circular A logical scalar. Is the string to be reconstructed circular? Circular strings (e.g. bacterial chromosomes) do not have an initial or terminal element.
 #' @param d An integer specifiying the distance between the read-pairs if paired reads are used.
