@@ -44,3 +44,9 @@ graph <- AdjacencyListToGraph(dataset)
 path <- EulerianPath(graph)
 output <- PrintPath(path)
 writeClipboard(output)
+
+# 3H
+dataset <- readLines("../data/rosalind_ba3h.txt")
+pattern <- dataset[-1]
+text <- StringFromComposition(pattern)
+writeClipboard(text)

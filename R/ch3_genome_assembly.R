@@ -349,3 +349,19 @@ EulerianPath <- function(graph){
 	path <- path[-1, ]
 	return(path)
 }
+
+#' Reconstruct a string from its \emph{k}-mer composition
+#' 
+#' \code{StringFromComposition} reconstructs a string from its \emph{k}-mer composition by constructing the de Bruijn graph for the reads (see \code{\link{DeBruijnGraph}}), finding an Eulerian path in the graph (see \code{\link{EulerianPath}}), and generating the string for that path (see \code{\link{StringFromGenomePath}}). It is the inverse to \code{\link{StringComposition}}.
+#' 
+#' @inheritParams OverlapGraph
+#' @return A string with \emph{k}-mer composition equal to \code{pattern}
+#' @examples
+#' pattern <- c("CTTA", "ACCA", "TACC", "GGCT", "GCTT", "TTAC")
+#' StringFromComposition(pattern)
+StringFromComposition <- function(pattern){
+	debruijn <- DeBruijnGraph(pattern)
+	path <- EulerianPath(debruijn)
+	text <- StringFromGenomePath(c(path[, "node1"], path[nrow(path), "node2"]))
+	return(text)
+}
