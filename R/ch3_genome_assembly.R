@@ -40,7 +40,7 @@ StringFromGenomePath <- function(pattern){
 
 #' Extract the first \emph{k} - 1 characters of a \emph{k}-mer
 #'
-#' \code{Prefix} extracts the first \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}.
+#' \code{Prefix} extracts the first \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}. It can also be used for paired reads where the reads are separated by "|" (i.e. "read1|read2") and will extract the prefix of each read separately.
 #'
 #' \code{Prefix} is used in the implementation of \code{\link{OverlapGraph}}.
 #'
@@ -48,31 +48,75 @@ StringFromGenomePath <- function(pattern){
 #' @return A string consisting of all but the last character of \code{pattern}.
 #' @examples
 #' Prefix("AAT")
+#'
+#' pattern <- c("GAGA|TTGA", 
+#' "TCGT|GATG", 
+#' "CGTG|ATGT", 
+#' "TGGT|TGAG", 
+#' "GTGA|TGTT", 
+#' "GTGG|GTGA", 
+#' "TGAG|GTTG", 
+#' "GGTC|GAGA", 
+#' "GTCG|AGAT")
+#' Prefix(pattern)
 Prefix <- function(pattern){
 	if (any(nchar(pattern) == 1)) {
 		stop("pattern must have more than 1 character")
 	}
+	# check for paired reads
+	paired <- any(grepl("|", pattern, fixed = TRUE))
+	# split paired reads
+	if (paired) {
+		split_reads <- strsplit(reads, "|", fixed = TRUE)
+		pattern <- do.call(rbind, split_reads)
+	}
 	k <- nchar(pattern)
 	prefix <- substring(pattern, 1, k - 1)
+	# combine paired reads
+	if (paired) {
+		prefix <- paste(prefix[, 1], prefix[, 2], sep = "|")
+	}
 	return(prefix)
 }
 
 #' Extract the last \emph{k} - 1 characters of a \emph{k}-mer
 #'
-#' \code{Suffix} extracts the last \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}.
+#' \code{Suffix} extracts the last \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}. It can also be used for paired reads where the reads are separated by "|" (i.e. "read1|read2") and will extract the suffix of each read separately.
 #'
 #' \code{Suffix} is used in the implementation of \code{\link{OverlapGraph}}.
 #'
 #' @param pattern A string.
 #' @return A string consisting of all but the first character of \code{pattern}.
 #' @examples
-#' Prefix("TAA")
+#' Suffix("TAA")
+#'
+#' pattern <- c("GAGA|TTGA", 
+#' "TCGT|GATG", 
+#' "CGTG|ATGT", 
+#' "TGGT|TGAG", 
+#' "GTGA|TGTT", 
+#' "GTGG|GTGA", 
+#' "TGAG|GTTG", 
+#' "GGTC|GAGA", 
+#' "GTCG|AGAT")
+#' Suffix(pattern)
 Suffix <- function(pattern){
 	if (any(nchar(pattern) == 1)) {
 		stop("pattern must have more than 1 character")
 	}
+	# check for paired reads
+	paired <- any(grepl("|", pattern, fixed = TRUE))
+	# split paired reads
+	if (paired) {
+		split_reads <- strsplit(reads, "|", fixed = TRUE)
+		pattern <- do.call(rbind, split_reads)
+	}
 	k <- nchar(pattern)
 	suffix <- substring(pattern, 2, k)
+	# combine paired reads
+	if (paired) {
+		suffix <- paste(suffix[, 1], suffix[, 2], sep = "|")
+	}
 	return(suffix)
 }
 
