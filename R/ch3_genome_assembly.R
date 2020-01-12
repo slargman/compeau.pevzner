@@ -385,3 +385,44 @@ StringFromComposition <- function(pattern, circular = FALSE){
 	}
 	return(text)
 }
+
+#' Generate the set of all binary \emph{k}-mers
+#' 
+#' \code{BinaryStrings} generates the set of all \code{2^k} binary \code{k}-mers for a specified integer \code{k}. A \code{k}-mer is a string \code{k} characters long.
+#' 
+#' @param k An integer greater than or equal to 1.
+#' @return A character vector containg all \code{2^k} binary \code{k}-mers.
+#' @examples
+#' BinaryStrings(1)
+#' BinaryStrings(2)
+#' BinaryStrings(3)
+#' BinaryStrings(4)
+BinaryStrings <- function(k){
+	binary_strings <- character(2^k)
+	for (i in 1:k) {
+		first_rep <- c(rep(0, 2^(k - i)), rep(1, 2^(k - i)))
+		new_chars <- rep(first_rep, 2^(i - 1))
+		binary_strings <- paste0(binary_strings, new_chars)
+	}
+	return(binary_strings)
+}
+
+#' Find a \emph{k}-universal circular binary string
+#' 
+#' \code{UniversalCircularString} finds a \emph{k}-universal circular binary string for a specified integer \emph{k}. A \emph{k}-universal circular string is a circular string that contains every possible \emph{k}-mer constructed over a given alphabet. In this case we take the binary alphabet consisting of 0 and 1.
+#' 
+#' @inheritParams BinaryStrings
+#' @return A \emph{k}-universal circular binary string.
+#' @examples
+#' UniversalCircularString(1)
+#' UniversalCircularString(2)
+#' UniversalCircularString(3)
+#' UniversalCircularString(4)
+UniversalCircularString <- function(k){
+	if (identical(k, 1)) {
+		return("01")
+	}
+	binary_strings <- BinaryStrings(k)
+	k_universal <- StringFromComposition(binary_strings, circular = TRUE)
+	return(k_universal)
+}

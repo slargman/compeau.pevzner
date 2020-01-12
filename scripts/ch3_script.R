@@ -50,3 +50,8 @@ dataset <- readLines("../data/rosalind_ba3h.txt")
 pattern <- dataset[-1]
 text <- StringFromComposition(pattern)
 writeClipboard(text)
+
+# 3I
+k <- as.integer(readLines("../data/rosalind_ba3i.txt"))
+k_universal <- UniversalCircularString(k)
+writeClipboard(k_universal)
