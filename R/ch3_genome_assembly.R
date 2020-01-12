@@ -207,20 +207,6 @@ AdjacencyListToGraph <- function(adj_list){
 	return(graph)
 }
 
-#' Find all nodes adjacent to a particular node in a graph
-#' 
-#' \code{ConnectedNodes} finds all the nodes adjacent to \code{node} in the graph with edges specified by code{edges}.
-#' 
-#' @param node A string giving the name of the node.
-#' @param edges A character matrix where each row corresponds to an edge in the graph. It must contain named columns "node1" and "node2" for the outgoing and incoming nodes of the edge (e.g. \code{graph\$edges} for the graph resulting from \code{\link{OverlapGraph}} or \code{\link{DeBruijnGraph}}).
-#' @return A character vector listing the nodes connected to \code{node}.
-#' @examples
-ConnectedNodes <- function(node, edges){
-	edge_indices <- which(edges[, "node1"] == node)
-	connected_nodes <- edges[edge_indices, "node2"] 
-	return(connected_nodes)
-}
-
 #' Find an Eulerian cycle in a graph
 #' 
 #' \code{EulerianCycle} uses the algorithm set forth in the original proof of Euler's Theorem to find an Eulerian cycle in a balanced and strongly connected graph. A graph is balanced if the indegree of every node is equal to its outdegree (see \code{\link{GraphDegree}}) and it is strongly connected if it is possible to reach any node from every other node. An Eulerian cycle is a cycle (i.e. a path that starts and ends at the same node) that traverses each edge of a graph exactly once.
