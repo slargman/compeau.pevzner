@@ -304,9 +304,9 @@ PrintPath <- function(path){
 #' GraphDegree(graph)
 GraphDegree <- function(graph){
 	edges <- graph$edges
-	nodes <- unique(sort(edges))
+	nodes <- unique(sort(c(edges[, "node1"], edges[, "node2"])))
 	n <- length(nodes)
-	degree <- tibble(node = nodes, outdeg = character(n), indeg = character(n), )
+	degree <- tibble(node = nodes, outdeg = integer(n), indeg = integer(n))
 	for (i in seq_along(degree$node)) {
 		node <- degree$node[i]
 		degree[i, "outdeg"] <- sum(edges[, "node1"] == node)
@@ -336,7 +336,10 @@ EulerianPath <- function(graph){
 	if (length(unbalanced_nodes) != 2) {
 		stop("graph is not nearly balanced")
 	}
-	graph$edges <- rbind(graph$edges, unbalanced_nodes)
+	# graph may have additional columns (e.g. edge label)
+	graph$edges <- rbind(graph$edges, NA)
+	graph$edges[nrow(graph$edges), "node1"] <- missing_out
+	graph$edges[nrow(graph$edges), "node2"] <- missing_in
 	path <- EulerianCycle(graph)
 	shift <- which(path[, "node1"] == missing_out & path[, "node2"] == missing_in)[1]
 	if (shift != 1) {
