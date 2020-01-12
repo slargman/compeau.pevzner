@@ -473,6 +473,7 @@ UniversalCircularString <- function(k){
 #' "TGAG|GTTG", 
 #' "GGTC|GAGA", 
 #' "GTCG|AGAT")
+#' ConvertPairedReads(reads)
 ConvertPairedReads <- function(reads){
 	split_reads <- strsplit(reads, "|", fixed = TRUE)
 	read_matrix <- do.call(rbind, split_reads)
