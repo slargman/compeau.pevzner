@@ -37,3 +37,10 @@ graph <- AdjacencyListToGraph(dataset)
 cycle <- EulerianCycle(graph)
 output <- PrintPath(cycle)
 writeClipboard(output)
+
+# 3G
+dataset <- readLines("../data/rosalind_ba3g.txt")
+graph <- AdjacencyListToGraph(dataset)
+path <- EulerianPath(graph)
+output <- PrintPath(path)
+writeClipboard(output)

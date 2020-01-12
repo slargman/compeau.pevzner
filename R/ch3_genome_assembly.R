@@ -289,3 +289,60 @@ PrintPath <- function(path){
 	display <- paste0(c(path[, "node1"], path[n, "node2"]), collapse = "->")
 	return(display)
 }
+
+#' Calculate the degree of each node in a graph
+#' 
+#' \code{GraphDegree} calculates the degree of each node in a graph. It finds both the indegree (the number of edges leading into the node) and the outdegree (the number of edges leading out of the node). \code{GraphDegree} can be used to determine if a node is balanced (indegree = outdegree) or if a graph is balanced (meaning all the nodes are balanced). It is used for this purpose in \code{\link{EulerianPath}}.
+#' 
+#' @inheritParams EulerianCycle
+#' @return A tibble consisting of three columns: "node", "outdeg", and "indeg". These columns give respectively the node label, its outdegree, and its indegree.
+#' @examples
+#' node1 <- c(0:3, 6:9)
+#' node2 <- c("2", "3", "1", "0,4", "3,7", "8", "9", "6")
+#' adj_list <- paste(node1, "->", node2)
+#' graph <- AdjacencyListToGraph(adj_list)
+#' GraphDegree(graph)
+GraphDegree <- function(graph){
+	edges <- graph$edges
+	nodes <- unique(sort(edges))
+	n <- length(nodes)
+	degree <- tibble(node = nodes, outdeg = character(n), indeg = character(n), )
+	for (i in seq_along(degree$node)) {
+		node <- degree$node[i]
+		degree[i, "outdeg"] <- sum(edges[, "node1"] == node)
+		degree[i, "indeg"] <- sum(edges[, "node2"] == node)
+	}
+	return(degree)
+}
+
+#' Find an Eulerian path in a graph
+#' 
+#' \code{EulerianPath} finds an Eulerian path in a graph by using \code{\link{GraphDegree}} to find the unbalanced nodes, balancing the graph, and using \code{\link{EulerianCycle}} to find an Eulerian cycle. An Eulerian path is a path that traverses each edge of a graph exactly once. Such a path exists when the graph is nearly balanced, meaning the graph has only two unbalanced nodes and adding an edge between these unbalanced nodes makes the graph balanced and strongly connected.
+#' 
+#' @inheritParams EulerianCycle
+#' @return A permutation of \code{graph\$edges} (i.e. a character matrix) that lists the edges in the order in which they are traversed in an Eulerian path.
+#' @examples
+#' node1 <- c(0:3, 6:9)
+#' node2 <- c("2", "3", "1", "0,4", "3,7", "8", "9", "6")
+#' adj_list <- paste(node1, "->", node2)
+#' graph <- AdjacencyListToGraph(adj_list)
+#' path <- EulerianPath(graph)
+#' PrintPath(path)
+EulerianPath <- function(graph){
+	degree <- GraphDegree(graph)
+	missing_out <- degree$node[which(degree$outdeg < degree$indeg)]
+	missing_in <- degree$node[which(degree$outdeg > degree$indeg)]
+	unbalanced_nodes <- c(missing_out, missing_in)
+	if (length(unbalanced_nodes) != 2) {
+		stop("graph is not nearly balanced")
+	}
+	graph$edges <- rbind(graph$edges, unbalanced_nodes)
+	path <- EulerianCycle(graph)
+	shift <- which(path[, "node1"] == missing_out & path[, "node2"] == missing_in)[1]
+	if (shift != 1) {
+		n <- nrow(path)
+		path <- path[c(shift:n, 1:(shift - 1)), ]
+	}
+	path <- path[-1, ]
+	return(path)
+}
