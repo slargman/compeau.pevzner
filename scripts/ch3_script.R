@@ -30,3 +30,10 @@ patterns <- readLines("../data/rosalind_ba3e.txt")
 graph <- DeBruijnGraph(patterns)
 output <- PrintEdges(graph)
 writeClipboard(output)
+
+# 3F
+dataset <- readLines("../data/rosalind_ba3f.txt")
+graph <- AdjacencyListToGraph(dataset)
+cycle <- EulerianCycle(graph)
+output <- PrintPath(cycle)
+writeClipboard(output)
