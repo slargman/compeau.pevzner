@@ -412,3 +412,26 @@ UniversalCircularString <- function(k){
 	k_universal <- StringFromComposition(binary_strings, circular = TRUE)
 	return(k_universal)
 }
+
+#' Convert paired reads into matrix form
+#' 
+#' \code{ConvertPairedReads} converts a set of paired genome reads from the string form used on Rosalind into a two-column matrix where the first column contains the first reads and the second column contains the second reads.
+#' 
+#' @param reads A character vector where each element specifies a paired read. The paired reads are separated by "|" in the form "read1|read2".
+#' @return A two-column character matrix where each row gives a paired read.
+#' @examples
+#' reads <- c("GAGA|TTGA", 
+#' "TCGT|GATG", 
+#' "CGTG|ATGT", 
+#' "TGGT|TGAG", 
+#' "GTGA|TGTT", 
+#' "GTGG|GTGA", 
+#' "TGAG|GTTG", 
+#' "GGTC|GAGA", 
+#' "GTCG|AGAT")
+ConvertPairedReads <- function(reads){
+	split_reads <- strsplit(reads, "|", fixed = TRUE)
+	read_matrix <- do.call(rbind, split_reads)
+	colnames(read_matrix) <- c("read1", "read2")
+	return(read_matrix)
+}
