@@ -395,24 +395,62 @@ EulerianPath <- function(graph){
 #' 
 #' \code{StringFromComposition} reconstructs a string from its \emph{k}-mer composition by constructing the de Bruijn graph for the reads (see \code{\link{DeBruijnGraph}}), finding an Eulerian path in the graph (see \code{\link{EulerianPath}}), and generating the string for that path (see \code{\link{StringFromGenomePath}}). It is the inverse to \code{\link{StringComposition}}.
 #' 
+#' \code{StringComposition} can also be used for paired reads specified in the form "read1|read2" in which case an integer \code{d} must be provided specifying the gap length for the reads.
+#' 
 #' @param circular A logical scalar. Is the string to be reconstructed circular? Circular strings (e.g. bacterial chromosomes) do not have an initial or terminal element.
+#' @param d An integer specifiying the distance between the read-pairs if paired reads are used.
 #' @inheritParams OverlapGraph
 #' @return A string with \emph{k}-mer composition equal to \code{pattern}
 #' @examples
 #' pattern <- c("CTTA", "ACCA", "TACC", "GGCT", "GCTT", "TTAC")
 #' StringFromComposition(pattern)
-StringFromComposition <- function(pattern, circular = FALSE){
-	k <- unique(nchar(pattern))
+#'
+#' pattern <- c("GAGA|TTGA", 
+#' "TCGT|GATG", 
+#' "CGTG|ATGT", 
+#' "TGGT|TGAG", 
+#' "GTGA|TGTT", 
+#' "GTGG|GTGA", 
+#' "TGAG|GTTG", 
+#' "GGTC|GAGA", 
+#' "GTCG|AGAT")
+#' StringFromComposition(pattern, d = 2)
+StringFromComposition(pattern, d = 2)
+StringFromComposition <- function(pattern, circular = FALSE, d = NULL){
+	# check for paired reads
+	paired <- any(grepl("|", pattern, fixed = TRUE))
+
+	# find read length
+	if (paired) {
+		if (is.null(d) ) {
+			stop("paired reads used without providing gap length")
+		}
+		k <- unique(nchar(as.vector(ConvertPairedReads(pattern))))
+	} else {
+		k <- unique(nchar(pattern))
+	}
+
+	# check consistent read length
 	if (length(k) > 1) {
 		stop("all elements of \'pattern\' must have the same length")
 	}
+
 	debruijn <- DeBruijnGraph(pattern)
 	path <- EulerianPath(debruijn)
+
 	if (circular) {
-		text <- StringFromGenomePath(path[1:(nrow(path) - k + 2), "node1"])
+		path_vector <- path[1:(nrow(path) - k + 2), "node1"]
 	} else {
-		text <- StringFromGenomePath(c(path[, "node1"], path[nrow(path), "node2"]))
+		path_vector <- c(path[, "node1"], path[nrow(path), "node2"])
 	}
+
+	if (paired) {
+		n <- length(path_vector)
+		read_matrix <- ConvertPairedReads(path_vector)
+		path_vector <- c(read_matrix[, "read1"], read_matrix[(n - d - k + 1):n, "read2"])
+	}
+
+	text <- StringFromGenomePath(path_vector)
 	return(text)
 }
 

@@ -55,3 +55,11 @@ writeClipboard(text)
 k <- as.integer(readLines("../data/rosalind_ba3i.txt"))
 k_universal <- UniversalCircularString(k)
 writeClipboard(k_universal)
+
+# 3J
+dataset <- readLines("../data/rosalind_ba3j.txt")
+numbers <- strsplit(dataset[1], " ", fixed = T)[[1]]
+d <- as.integer(numbers[2])
+pattern <- dataset[-1]
+text <- StringFromComposition(pattern, d = d)
+writeClipboard(text)
