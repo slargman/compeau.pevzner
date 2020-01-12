@@ -328,26 +328,37 @@ GraphDegree <- function(graph){
 #' graph <- AdjacencyListToGraph(adj_list)
 #' path <- EulerianPath(graph)
 #' PrintPath(path)
+#'
+#' adj_list <- c("0 -> 3", "1 -> 0", "2 -> 1,6", "3 -> 2", "4 -> 2", "5 -> 4", "6 -> 5,8", "7 -> 9", "8 -> 7", "9 -> 6") 
+#' graph <- AdjacencyListToGraph(adj_list)
+#' path <- EulerianPath(graph)
+#' PrintPath(path)
 EulerianPath <- function(graph){
 	degree <- GraphDegree(graph)
 	missing_out <- degree$node[which(degree$outdeg < degree$indeg)]
 	missing_in <- degree$node[which(degree$outdeg > degree$indeg)]
 	unbalanced_nodes <- c(missing_out, missing_in)
-	if (length(unbalanced_nodes) != 2) {
-		stop("graph is not nearly balanced")
+	# check if graph is nearly balanced
+	if (length(unbalanced_nodes) == 2) {
+		# graph may have additional columns (e.g. edge label)
+		graph$edges <- rbind(graph$edges, NA)
+		graph$edges[nrow(graph$edges), "node1"] <- missing_out
+		graph$edges[nrow(graph$edges), "node2"] <- missing_in
+		path <- EulerianCycle(graph)
+		shift <- which(path[, "node1"] == missing_out & path[, "node2"] == missing_in)[1]
+		if (shift != 1) {
+			n <- nrow(path)
+			path <- path[c(shift:n, 1:(shift - 1)), ]
+		}
+		path <- path[-1, ]
+		return(path)
+	} else if (length(unbalanced_nodes) == 0) {
+		# graph is already balanced
+		path <- EulerianCycle(graph)
+		return(path)
+	} else {
+		stop("graph is not balanced or nearly balanced")
 	}
-	# graph may have additional columns (e.g. edge label)
-	graph$edges <- rbind(graph$edges, NA)
-	graph$edges[nrow(graph$edges), "node1"] <- missing_out
-	graph$edges[nrow(graph$edges), "node2"] <- missing_in
-	path <- EulerianCycle(graph)
-	shift <- which(path[, "node1"] == missing_out & path[, "node2"] == missing_in)[1]
-	if (shift != 1) {
-		n <- nrow(path)
-		path <- path[c(shift:n, 1:(shift - 1)), ]
-	}
-	path <- path[-1, ]
-	return(path)
 }
 
 #' Reconstruct a string from its \emph{k}-mer composition
