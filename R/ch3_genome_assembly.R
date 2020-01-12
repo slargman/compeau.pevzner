@@ -67,7 +67,7 @@ Prefix <- function(pattern){
 	paired <- any(grepl("|", pattern, fixed = TRUE))
 	# split paired reads
 	if (paired) {
-		split_reads <- strsplit(reads, "|", fixed = TRUE)
+		split_reads <- strsplit(pattern, "|", fixed = TRUE)
 		pattern <- do.call(rbind, split_reads)
 	}
 	k <- nchar(pattern)
@@ -108,7 +108,7 @@ Suffix <- function(pattern){
 	paired <- any(grepl("|", pattern, fixed = TRUE))
 	# split paired reads
 	if (paired) {
-		split_reads <- strsplit(reads, "|", fixed = TRUE)
+		split_reads <- strsplit(pattern, "|", fixed = TRUE)
 		pattern <- do.call(rbind, split_reads)
 	}
 	k <- nchar(pattern)
