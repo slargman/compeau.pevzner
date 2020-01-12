@@ -38,6 +38,30 @@ StringFromGenomePath <- function(pattern){
 	return(text)
 }
 
+#' Convert paired reads into matrix form
+#' 
+#' \code{ConvertPairedReads} converts a set of paired genome reads from the string form used on Rosalind into a two-column matrix where the first column contains the first reads and the second column contains the second reads.
+#' 
+#' @param reads A character vector where each element specifies a paired read. The paired reads are separated by "|" in the form "read1|read2".
+#' @return A two-column character matrix where each row gives a paired read.
+#' @examples
+#' reads <- c("GAGA|TTGA", 
+#' "TCGT|GATG", 
+#' "CGTG|ATGT", 
+#' "TGGT|TGAG", 
+#' "GTGA|TGTT", 
+#' "GTGG|GTGA", 
+#' "TGAG|GTTG", 
+#' "GGTC|GAGA", 
+#' "GTCG|AGAT")
+#' ConvertPairedReads(reads)
+ConvertPairedReads <- function(reads){
+	split_reads <- strsplit(reads, "|", fixed = TRUE)
+	read_matrix <- do.call(rbind, split_reads)
+	colnames(read_matrix) <- c("read1", "read2")
+	return(read_matrix)
+}
+
 #' Extract the first \emph{k} - 1 characters of a \emph{k}-mer
 #'
 #' \code{Prefix} extracts the first \emph{k} - 1 characters of the \emph{k}-mer \code{pattern}. It can also be used for paired reads where the reads are separated by "|" (i.e. "read1|read2") and will extract the prefix of each read separately.
@@ -67,8 +91,7 @@ Prefix <- function(pattern){
 	paired <- any(grepl("|", pattern, fixed = TRUE))
 	# split paired reads
 	if (paired) {
-		split_reads <- strsplit(pattern, "|", fixed = TRUE)
-		pattern <- do.call(rbind, split_reads)
+		pattern <- ConvertPairedReads(pattern)
 	}
 	k <- nchar(pattern)
 	prefix <- substring(pattern, 1, k - 1)
@@ -108,8 +131,7 @@ Suffix <- function(pattern){
 	paired <- any(grepl("|", pattern, fixed = TRUE))
 	# split paired reads
 	if (paired) {
-		split_reads <- strsplit(pattern, "|", fixed = TRUE)
-		pattern <- do.call(rbind, split_reads)
+		pattern <- ConvertPairedReads(pattern)
 	}
 	k <- nchar(pattern)
 	suffix <- substring(pattern, 2, k)
@@ -294,32 +316,6 @@ EulerianCycle <- function(graph){
 	return(cycle)
 }
 
-#' Print a path in a graph for input into Rosalind
-#' 
-#' \code{PrintPath} takes a sequence of edges specified by a character matrix which corresponds to a path in a graph and returns a single string specifying the path in the format required for input into Rosalind. For each row in \code{path} the value of "node2" should be equal to the value of "node1" for the subsequent row.
-#' 
-#' @param path A character matrix which lists the edges of a path. The matrix must contain named columns "node1" and "node2" for the outgoing and incoming nodes of the edges.
-#' @return A string which gives the path by listing the nodes of the path separated by " -> ".
-#' @examples
-#' node1 <- 0:9
-#' node2 <- c("3", "0", "1,6", "2", "2", "4", "5,8", "9", "7", "6") 
-#' adj_list <- paste(node1, "->", node2)
-#' graph <- AdjacencyListToGraph(adj_list)
-#' cycle <- EulerianCycle(graph)
-#' PrintPath(cycle)
-#' 
-#' node1 <- c(0:3, 6:9)
-#' node2 <- c("2", "3", "1", "0,4", "3,7", "8", "9", "6")
-#' adj_list <- paste(node1, "->", node2)
-#' graph <- AdjacencyListToGraph(adj_list)
-#' path <- EulerianPath(graph)
-#' PrintPath(path)
-PrintPath <- function(path){
-	n <- nrow(path)
-	display <- paste0(c(path[, "node1"], path[n, "node2"]), collapse = "->")
-	return(display)
-}
-
 #' Calculate the degree of each node in a graph
 #' 
 #' \code{GraphDegree} calculates the degree of each node in a graph. It finds both the indegree (the number of edges leading into the node) and the outdegree (the number of edges leading out of the node). \code{GraphDegree} can be used to determine if a node is balanced (indegree = outdegree) or if a graph is balanced (meaning all the nodes are balanced). It is used for this purpose in \code{\link{EulerianPath}}.
@@ -389,6 +385,32 @@ EulerianPath <- function(graph){
 	} else {
 		stop("graph is not balanced or nearly balanced")
 	}
+}
+
+#' Print a path in a graph for input into Rosalind
+#' 
+#' \code{PrintPath} takes a sequence of edges specified by a character matrix which corresponds to a path in a graph and returns a single string specifying the path in the format required for input into Rosalind. For each row in \code{path} the value of "node2" should be equal to the value of "node1" for the subsequent row.
+#' 
+#' @param path A character matrix which lists the edges of a path. The matrix must contain named columns "node1" and "node2" for the outgoing and incoming nodes of the edges.
+#' @return A string which gives the path by listing the nodes of the path separated by " -> ".
+#' @examples
+#' node1 <- 0:9
+#' node2 <- c("3", "0", "1,6", "2", "2", "4", "5,8", "9", "7", "6") 
+#' adj_list <- paste(node1, "->", node2)
+#' graph <- AdjacencyListToGraph(adj_list)
+#' cycle <- EulerianCycle(graph)
+#' PrintPath(cycle)
+#' 
+#' node1 <- c(0:3, 6:9)
+#' node2 <- c("2", "3", "1", "0,4", "3,7", "8", "9", "6")
+#' adj_list <- paste(node1, "->", node2)
+#' graph <- AdjacencyListToGraph(adj_list)
+#' path <- EulerianPath(graph)
+#' PrintPath(path)
+PrintPath <- function(path){
+	n <- nrow(path)
+	display <- paste0(c(path[, "node1"], path[n, "node2"]), collapse = "->")
+	return(display)
 }
 
 #' Reconstruct a string from its \emph{k}-mer composition
@@ -493,28 +515,4 @@ UniversalCircularString <- function(k){
 	binary_strings <- BinaryStrings(k)
 	k_universal <- StringFromComposition(binary_strings, circular = TRUE)
 	return(k_universal)
-}
-
-#' Convert paired reads into matrix form
-#' 
-#' \code{ConvertPairedReads} converts a set of paired genome reads from the string form used on Rosalind into a two-column matrix where the first column contains the first reads and the second column contains the second reads.
-#' 
-#' @param reads A character vector where each element specifies a paired read. The paired reads are separated by "|" in the form "read1|read2".
-#' @return A two-column character matrix where each row gives a paired read.
-#' @examples
-#' reads <- c("GAGA|TTGA", 
-#' "TCGT|GATG", 
-#' "CGTG|ATGT", 
-#' "TGGT|TGAG", 
-#' "GTGA|TGTT", 
-#' "GTGG|GTGA", 
-#' "TGAG|GTTG", 
-#' "GGTC|GAGA", 
-#' "GTCG|AGAT")
-#' ConvertPairedReads(reads)
-ConvertPairedReads <- function(reads){
-	split_reads <- strsplit(reads, "|", fixed = TRUE)
-	read_matrix <- do.call(rbind, split_reads)
-	colnames(read_matrix) <- c("read1", "read2")
-	return(read_matrix)
 }
