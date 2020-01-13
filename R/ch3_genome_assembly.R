@@ -494,9 +494,13 @@ AllEulerianCycles <- function(graph){
 #' graph <- AdjacencyListToGraph(adj_list)
 #' path <- EulerianPath(graph)
 #' PrintPath(path)
-PrintPath <- function(path){
+PrintPath <- function(path, space = FALSE){
 	n <- nrow(path)
-	display <- paste0(c(path[, "node1"], path[n, "node2"]), collapse = "->")
+	sep <- "->"
+	if (space) {
+		sep <- paste0(" ", sep, " ")
+	}
+	display <- paste0(c(path[, "node1"], path[n, "node2"]), collapse = sep)
 	return(display)
 }
 
