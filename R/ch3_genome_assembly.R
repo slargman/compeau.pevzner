@@ -607,3 +607,77 @@ UniversalCircularString <- function(k){
 	k_universal <- StringFromComposition(binary_strings, circular = TRUE)
 	return(k_universal)
 }
+
+#' Find all maximal non-branching paths in a graph
+#' 
+#' \code{MaximalNonBranchingPaths} generates all non-branching paths in a graph. A maximal non-branching path is a path whose internal nodes are 1-in-1-out nodes and whose initial and final nodes are not 1-in-1-out nodes. A node is 1-in-1-out if its indegree and outdegree are both equal to 1 (see \code{\link{GraphDegree}}). A maximal non-branching path can also be an isolated cycle, meaning all its nodes are 1-in-1-out nodes.
+#' 
+#' @inheritParams PrintEdges
+#' @return A list where each element contains a character matrix that lists the edges in the order in which they are traversed in that maximal non-branching path.
+#' @examples
+#' adj_list <- c("1 -> 2", "2 -> 3", "3 -> 4,5", "6 -> 7", "7 -> 6") 
+#' graph <- AdjacencyListToGraph(adj_list)
+#' paths <- MaximalNonBranchingPaths(graph)
+#' sapply(paths, function(x) PrintPath(x, space = TRUE))
+MaximalNonBranchingPaths <- function(graph){
+	paths <- list()
+	degree <- GraphDegree(graph)
+
+	# find 1-in-1-out nodes
+	ind_1in1out <- which(degree$indeg == 1 & degree$outdeg == 1)
+	node_1in1out <- degree$node[ind_1in1out]
+
+	# find non-cycles
+	for (i in 1:nrow(degree)) {
+		if (!(i %in% ind_1in1out)) {
+			if (degree$outdeg[i] > 0) {
+				v <- degree$node[i]
+
+				# find outgoing edges
+				ind_out_edges <- which(graph$edges[, "node1"] == v)
+				out_edges <- graph$edges[ind_out_edges, , drop = F]
+				graph$edges <- graph$edges[-ind_out_edges, , drop = F]
+
+				for (i in 1:nrow(out_edges)) {
+
+					# start a path
+					edge <- out_edges[i, , drop = F]
+					w <- edge[, "node2"]
+					path <- edge
+
+					# extend path
+					while (w %in% node_1in1out) {
+						ind_next_edge <- which(graph$edges[, "node1"] == w)
+						next_edge <- graph$edges[ind_next_edge, , drop = F]
+						graph$edges <- graph$edges[-ind_next_edge, , drop = F]
+						w <- next_edge[, "node2"]
+						path <- rbind(path, next_edge)
+					}
+
+					paths <- c(paths, list(path))
+				}
+			}
+		}
+	}
+
+	# find isolated cycles
+	while (nrow(graph$edges) > 0) {
+		# start path
+		path <- graph$edges[1, , drop = F]
+		graph$edges <- graph$edges[-1, , drop = F]
+		v <- path[1, "node1"]
+		w <- path[1, "node2"]
+
+		# extend path
+		while (w != v) {
+			ind_next_edge <- which(graph$edges[, "node1"] == w)
+			next_edge <- graph$edges[ind_next_edge, , drop = F]
+			graph$edges <- graph$edges[-ind_next_edge, , drop = F]
+			w <- next_edge[, "node2"]
+			path <- rbind(path, next_edge)
+		}
+		paths <- c(paths, list(path))
+	}
+
+	return(paths)
+}

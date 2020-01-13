@@ -63,3 +63,10 @@ d <- as.integer(numbers[2])
 pattern <- dataset[-1]
 text <- StringFromComposition(pattern, d = d)
 writeClipboard(text)
+
+# 3M
+adj_list <- readLines("../data/rosalind_ba3m.txt")
+graph <- AdjacencyListToGraph(adj_list)
+paths <- MaximalNonBranchingPaths(graph)
+output <- sapply(paths, function(x) PrintPath(x, space = T))
+writeClipboard(output)
