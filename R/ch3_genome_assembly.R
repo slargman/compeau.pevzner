@@ -681,3 +681,22 @@ MaximalNonBranchingPaths <- function(graph){
 
 	return(paths)
 }
+
+#' Generate contigs from a collection of reads
+#' 
+#' \code{GenerateContigs} assembles contigs (long, contiguous segments of a genome) from a collection of \emph{k}-mer reads. Due to gaps in \emph{k}-mer coverage, the de Bruijn graph (see \code{\link{DeBruijnGraph}}) may have missing edges. In this case it is not possible to produce an Eulerian path in the graph and therefore the genome cannot be assembled. Instead maximal non-branching paths in the graph are found, which produce contigs
+#' 
+#' @inheritParams OverlapGraph
+#' @return A character vector containing all the contigs for k-mer composition contained in \code{pattern}
+#' @examples
+#' pattern <- c("ATG", "ATG", "TGT", "TGG", "CAT", "GGA", "GAT", "AGA")
+#' GenerateContigs(pattern)
+GenerateContigs <- function(pattern){
+	debruijn <- DeBruijnGraph(pattern)
+	paths <- MaximalNonBranchingPaths(debruijn)
+	contigs <- sapply(paths, function(x) {
+		path_vector <- c(x[, "node1"], x[nrow(x), "node2"])
+		StringFromGenomePath(path_vector)
+	})
+	return(contigs)
+}

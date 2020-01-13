@@ -64,6 +64,11 @@ pattern <- dataset[-1]
 text <- StringFromComposition(pattern, d = d)
 writeClipboard(text)
 
+# 3K
+pattern <- readLines("../data/rosalind_ba3k.txt")
+contigs <- GenerateContigs(pattern)
+writeClipboard(contigs)
+
 # 3M
 adj_list <- readLines("../data/rosalind_ba3m.txt")
 graph <- AdjacencyListToGraph(adj_list)
