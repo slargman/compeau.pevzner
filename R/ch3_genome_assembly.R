@@ -20,7 +20,7 @@ StringComposition <- function(text, k){
 #' \code{StringFromGenomePath} reconstructs a string from a genome path of consecutive \emph{k}-mers that are listed in the character vector \code{pattern}. These consecutive \emph{k}-mers overlap such that the last \emph{k} - 1 characters of one element are the same as the first \emph{k} - 1 characters of the next. Concatenating these \emph{k}-mers yields the string from which they originate.
 #' 
 #' @param pattern A character vector of length \code{n} containing \emph{k}-mers such that the last \emph{k - 1} symbols of \code{pattern[i]} are equal to the first \emph{k - 1} symbols of \code{pattern[i + 1]} for \code{i} ranging from 1 to \emph{n} - 1.
-#' @return A string of \code{text} of length \emph{k} + \emph{n} - 1 such that the \emph{i}-th \emph{k}-mer in \code{text} is equal to \code{pattern[i]} for \emph{i} ranging from 1 to \emph{n}.
+#' @return A string \code{text} of length \emph{k} + \emph{n} - 1 such that the \emph{i}-th \emph{k}-mer in \code{text} is equal to \code{pattern[i]} for \emph{i} ranging from 1 to \emph{n}.
 #' @examples
 #' pattern <- c("ACCGA", "CCGAA", "CGAAG", "GAAGC", "AAGCT")
 #' StringFromGenomePath(pattern)
@@ -60,6 +60,34 @@ ConvertPairedReads <- function(reads){
 	read_matrix <- do.call(rbind, split_reads)
 	colnames(read_matrix) <- c("read1", "read2")
 	return(read_matrix)
+}
+
+#' Reconstruct a string from a gapped genome path
+#' 
+#' \code{StringFromGappedPath} reconstructs a string from a gapped genome path of consecutive (\emph{k}, \emph{d})-mers listed in the character vector \code{gapped_patterns}. A (\emph{k}, \emph{d})-mer is a pair of \emph{k}-mers separated by a gap of length \emph{d}.
+#' 
+#' @param gapped_patterns A character vector where each element specifies a paired read. The paired reads are separated by "|" in the form "read1|read2". These consecutive (\emph{k}, \emph{d})-mers should overlap such that the last \emph{k} - 1 characters of each read in the pair are the same as the first \emph{k} - 1 characters of the corresponding read in the next pair.
+#' @return A string \code{text} of length \emph{k} + \emph{d} + \emph{k} + \emph{n} - 1 such that \emph{i}-th (\emph{k}, \emph{d})-mer of \code{text} is equal to \code{gapped_patterns[i]} for \emph{i} ranging from 1 to \emph{n} (where \code{n = length(gapped_patterns)}).
+#' @examples
+#' reads <- c("GACC|GCGC", "ACCG|CGCC", "CCGA|GCCG", "CGAG|CCGG", "GAGC|CGGA")
+#' StringFromGappedPath(reads, 2)
+StringFromGappedPath <- function(gapped_patterns, d){
+	read_matrix <- ConvertPairedReads(gapped_patterns)
+	first_patterns <- read_matrix[, "read1"]
+	second_patterns <- read_matrix[, "read2"]
+	prefix_string <- StringFromGenomePath(first_patterns)
+	suffix_string <- StringFromGenomePath(second_patterns)
+
+	# check for overlap
+	k <- unique(nchar(as.vector(read_matrix)))
+	n <- nchar(prefix_string)
+	prefix_overlap <- substring(prefix_string, k + d + 1)
+	suffix_overlap <- substring(suffix_string, 1, n - k - d)
+	if (prefix_overlap != suffix_overlap) {
+		stop("there is no string spelled by the gapped patterns")
+	}
+	string <- paste0(prefix_string, substring(suffix_string, n - k - d + 1))
+	return(string)
 }
 
 #' Extract the first \emph{k} - 1 characters of a \emph{k}-mer

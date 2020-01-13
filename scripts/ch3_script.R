@@ -69,6 +69,14 @@ pattern <- readLines("../data/rosalind_ba3k.txt")
 contigs <- GenerateContigs(pattern)
 writeClipboard(contigs)
 
+# 3L
+dataset <- readLines("../data/rosalind_ba3l.txt")
+numbers <- strsplit(dataset[1], " ", fixed = T)[[1]]
+d <- as.integer(numbers[2])
+gapped_patterns <- dataset[-1]
+text <- StringFromGappedPath(gapped_patterns, d)
+writeClipboard(text)
+
 # 3M
 adj_list <- readLines("../data/rosalind_ba3m.txt")
 graph <- AdjacencyListToGraph(adj_list)
