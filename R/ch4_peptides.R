@@ -13,12 +13,18 @@ TranslateCodon <- function(codon){
 	return(translated_codon)
 }
 
-TranslateRNA <- function(RNA){
+TranslateRNA <- function(RNA, vector = FALSE){
 	codons <- substring(RNA, seq(1, nchar(RNA), 3), seq(3, nchar(RNA), 3))
-	peptide <- paste(TranslateCodon(codons), sep = "", collapse = "")
-	n <- nchar(peptide)
-	if (identical("*", substring(peptide, n))) {
-		peptide <- substring(peptide, 1, n - 1)
+	peptide <- TranslateCodon(codons)
+	n <- length(peptide)
+
+	# check for stop codon
+	if (identical("*", peptide[n])) {
+		peptide <- peptide[1:(n - 1)]
+	}
+
+	if (!vector) {
+		peptide <- paste(peptide, sep = "", collapse = "")
 	}
 	return(peptide)
 }
