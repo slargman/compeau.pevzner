@@ -28,3 +28,35 @@ TranslateRNA <- function(RNA, vector = FALSE){
 	}
 	return(peptide)
 }
+TranscribeDNA("GTGAAACTTTTTCCTTGGTTTAATCAATAT")
+TranscribeDNA <- function(DNA){
+	RNA <- gsub("T", "U", DNA, fixed = TRUE)
+	return(RNA)
+}
+FindPeptide <- function(DNA, peptide){
+	mRNA_length <- 3 * nchar(peptide)
+	encoding_sequences <- character(2 * (nchar(DNA) - mRNA_length + 1)) 
+	reverse_DNA <- ReverseComplement(DNA)
+
+	# scan along forward strand
+	for (i in 1:(nchar(DNA) - mRNA_length + 1)) {
+		reading_frame <- substring(DNA, i, i + mRNA_length - 1)
+		mRNA <- TranscribeDNA(reading_frame)
+		pep <- TranslateRNA(mRNA)
+		if (identical(pep, peptide)) {
+			encoding_sequences[i] <- reading_frame
+		}
+	}
+
+	# scan along reverse strand
+	for (i in 1:(nchar(reverse_DNA) - mRNA_length + 1)) {
+		reading_frame <- substring(reverse_DNA, i, i + mRNA_length - 1)
+		mRNA <- TranscribeDNA(reading_frame)
+		pep <- TranslateRNA(mRNA)
+		if (identical(pep, peptide)) {
+			encoding_sequences[nchar(DNA) - mRNA_length + 1 + i] <- ReverseComplement(reading_frame)
+		}
+	}
+	encoding_sequences <- encoding_sequences[nchar(encoding_sequences) != 0]
+	return(encoding_sequences)
+}
