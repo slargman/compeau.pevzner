@@ -7,6 +7,11 @@ codons <- do.call(paste0, as.list(codons[, 3:1]))
 # amino acids
 genetic_code <- c("K", "N", "K", "N", "T", "T", "T", "T", "R", "S", "R", "S", "I", "I", "M", "I", "Q", "H", "Q", "H", "P", "P", "P", "P", "R", "R", "R", "R", "L", "L", "L", "L", "E", "D", "E", "D", "A", "A", "A", "A", "G", "G", "G", "G", "V", "V", "V", "V", "*", "Y", "*", "Y", "S", "S", "S", "S", "*", "C", "W", "C", "L", "F", "L", "F") 
 names(genetic_code) <- codons
+
+# amino acid masses
+amino_acid_mass <- c(57, 71, 87, 97, 99, 101, 103, 113, 113, 114, 115, 128, 128, 129, 131, 137, 147, 156, 163, 186)
+names(amino_acid_mass) <- c("G", "A", "S", "P", "V", "T", "C", "I", "L", "N", "D", "K", "Q", "E", "M", "H", "F", "R", "Y", "W")
+
 TranslateCodon <- function(codon){
 	translated_codon <- genetic_code[codon]
 	names(translated_codon) <- NULL
