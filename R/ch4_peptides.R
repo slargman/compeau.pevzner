@@ -35,28 +35,21 @@ TranscribeDNA <- function(DNA){
 }
 FindPeptide <- function(DNA, peptide){
 	mRNA_length <- 3 * nchar(peptide)
-	encoding_sequences <- character(2 * (nchar(DNA) - mRNA_length + 1)) 
-	reverse_DNA <- ReverseComplement(DNA)
+	encoding_sequences <- character(2 * nchar(DNA))
 
-	# scan along forward strand
 	for (i in 1:(nchar(DNA) - mRNA_length + 1)) {
 		reading_frame <- substring(DNA, i, i + mRNA_length - 1)
 		mRNA <- TranscribeDNA(reading_frame)
 		pep <- TranslateRNA(mRNA)
-		if (identical(pep, peptide)) {
+
+		rev_mRNA <- TranscribeDNA(ReverseComplement(reading_frame))
+		rev_pep <- TranslateRNA(rev_mRNA)
+
+		if (identical(pep, peptide) || identical(rev_pep, peptide)) {
 			encoding_sequences[i] <- reading_frame
 		}
 	}
 
-	# scan along reverse strand
-	for (i in 1:(nchar(reverse_DNA) - mRNA_length + 1)) {
-		reading_frame <- substring(reverse_DNA, i, i + mRNA_length - 1)
-		mRNA <- TranscribeDNA(reading_frame)
-		pep <- TranslateRNA(mRNA)
-		if (identical(pep, peptide)) {
-			encoding_sequences[nchar(DNA) - mRNA_length + 1 + i] <- ReverseComplement(reading_frame)
-		}
-	}
 	encoding_sequences <- encoding_sequences[nchar(encoding_sequences) != 0]
 	return(encoding_sequences)
 }
