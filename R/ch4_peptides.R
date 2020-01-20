@@ -140,7 +140,7 @@ PeptideSpectrum <- function(peptide, cyclic = TRUE){
 		for (j in (i + 1):nchar(peptide)) {
 			pep <- PrefixMass(peptide, j) - PrefixMass(peptide, i)
 			peptide_spectrum <- c(peptide_spectrum, pep)
-			if (i > 0 && j < nchar(peptide)) {
+			if (i > 0 && j < nchar(peptide) && cyclic) {
 				pep <- peptide_mass - pep
 				peptide_spectrum <- c(peptide_spectrum, pep)
 			}
