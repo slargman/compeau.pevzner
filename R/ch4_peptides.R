@@ -131,3 +131,20 @@ PrefixMass <- function(peptide, i = NULL){
 	}
 	return(prefix_mass)
 }
+
+PeptideSpectrum <- function(peptide, cyclic = TRUE){
+	peptide_mass <- PrefixMass(peptide, nchar(peptide))
+	peptide_spectrum <- 0L
+
+	for (i in 0:(nchar(peptide) - 1)) {
+		for (j in (i + 1):nchar(peptide)) {
+			pep <- PrefixMass(peptide, j) - PrefixMass(peptide, i)
+			peptide_spectrum <- c(peptide_spectrum, pep)
+			if (i > 0 && j < nchar(peptide)) {
+				pep <- peptide_mass - pep
+				peptide_spectrum <- c(peptide_spectrum, pep)
+			}
+		}
+	}
+	return(sort(peptide_spectrum))
+}
