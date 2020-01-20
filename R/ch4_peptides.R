@@ -98,3 +98,36 @@ FindPeptide <- function(DNA, peptide){
 	encoding_sequences <- encoding_sequences[nchar(encoding_sequences) != 0]
 	return(encoding_sequences)
 }
+
+#' Find the mass of the prefix of a peptide string
+#' 
+#' \code{PrefixMass} finds the mass of the first \code{i} amino acids in an amino acid string \code{peptide} (i.e. a peptide). If a value for \code{i} is not provided \code{PrefixMass} instead returns the vector containing the masses for all the prefixes of \code{peptide} starting from the null prefix with mass 0 and ending with the entirety of \code{peptide}.
+#' 
+#' @inheritParams peptide
+#' @param i An integer specifying that the prefix consists of the first \code{i} amino acids in \code{peptide}. If a value for \code{i} is not provided then a vector is returned containing the masses for all the prefixes of \code{peptide}.
+#' @return The combined mass in daltons of the first \code{i} amino acids of \code{peptide}.
+#' @examples
+#' peptide <- "NQEL"
+#' PrefixMass(peptide, 0)
+#' PrefixMass(peptide, 1)
+#' PrefixMass(peptide, 4)
+#' PrefixMass(peptide)
+PrefixMass <- function(peptide, i = NULL){
+	# empty prefix
+	if (identical(i, 0L)) {
+		return(0)
+	}
+
+	prefix_mass <- numeric(0)
+
+	# check for returning all prefixes
+	if (is.null(i)) {
+		for (j in 0:nchar(peptide)) {
+			prefix_mass <- c(prefix_mass, PrefixMass(peptide, j))
+		}
+	} else {
+		prefix <- substring(peptide, 1:i, 1:i)
+		prefix_mass <- sum(amino_acid_mass[prefix])
+	}
+	return(prefix_mass)
+}
