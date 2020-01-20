@@ -132,6 +132,16 @@ PrefixMass <- function(peptide, i = NULL){
 	return(prefix_mass)
 }
 
+#' Generate the theoretical spectrum of a peptide
+#' 
+#' \code{PeptideSpectrum} generates the theoretical spectrum of the linear or cyclic amino acid string \code{peptide}. The theoretical spectrum of a peptide is the collection of all of the masses of its subpeptides, in addition to the mass 0 and the mass of the entire peptide. The theoretical spectrum can contain duplicate elements, as in the case for "NQEL", where "NQ" and "EL" have the same mass. The peptide can be either linear or cyclic, specified by the logical scalar \code{cyclic}. If the peptide is cyclic the cyclospectrum is generated, which assumes that subpeptides can wrap around the ends of \code{peptide}.
+#' 
+#' @inheritParams FindPeptide
+#' @param cyclic A logical scalar. Is the peptide cyclic? The default value for \code{cyclic} is \code{TRUE}.
+#' @return A numerical vector containing the theoretical spectrum for \code{peptide} in daltons.
+#' @examples
+#' peptide <- "LEQN"
+#' PeptideSpectrum(peptide)
 PeptideSpectrum <- function(peptide, cyclic = TRUE){
 	peptide_mass <- PrefixMass(peptide, nchar(peptide))
 	peptide_spectrum <- 0L
