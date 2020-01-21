@@ -242,7 +242,7 @@ CyclopeptideSequencing <- function(spectrum){
 #' peptides <- CyclopeptideSequencing(spectrum)
 #' PrintCyclopeptideSequencing(peptides)
 PrintCyclopeptideSequencing <- function(peptides){
-	peptides_num <- sapply(as.list(peptides), function(x) amino_acid_mass[substring(x, 1:nchar(x), 1:nchar(x))])
+	peptides_num <- lapply(as.list(peptides), function(x) amino_acid_mass[substring(x, 1:nchar(x), 1:nchar(x))])
 	peptides_num <- sapply(peptides_num, function(x) paste(x, sep = "", collapse = "-"))
 	return(unique(peptides_num))
 }
