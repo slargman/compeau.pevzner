@@ -159,3 +159,19 @@ PeptideSpectrum <- function(peptide, cyclic = TRUE){
 	}
 	return(sort(peptide_spectrum))
 }
+
+#' Find the mass of a peptide
+#' 
+#' \code{PeptideMass} find the mass of the amino acid string \code{peptide} in daltons.
+#' 
+#' @inheritParams FindPeptide
+#' @return The mass in daltons of the amino acid string \code{peptide}.
+#' @examples
+#' PeptideMass("A")
+#' PeptideMass("NQEL")
+PeptideMass <- function(peptide){
+	n <- nchar(peptide)
+	amino_acids <- substring(peptide, 1:n, 1:n)
+	mass <- sum(amino_acid_mass[amino_acids])
+	return(mass)
+}
