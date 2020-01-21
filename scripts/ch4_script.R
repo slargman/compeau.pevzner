@@ -15,3 +15,10 @@ peptide <- readLines("../data/rosalind_ba4c.txt")
 cyclospectrum <- PeptideSpectrum(peptide)
 output <- paste(cyclospectrum, sep = "", collapse = " ")
 writeClipboard(output)
+
+# 4E
+dataset <- readLines("../data/rosalind_ba4e.txt")
+spectrum <- as.numeric(strsplit(dataset, split = " ", fixed = TRUE)[[1]])
+peptides <- CyclopeptideSequencing(spectrum)
+peptides_num <- paste(PrintCyclopeptideSequencing(peptides), sep = "", collapse = " ")
+writeClipboard(peptides_num)
