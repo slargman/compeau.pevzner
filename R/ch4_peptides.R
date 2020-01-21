@@ -200,3 +200,33 @@ CheckSpectrumConsistency <- function(peptide, spectrum){
 	}
 	return(TRUE)
 }
+
+#' Find a peptide with a given spectrum
+#' 
+#' \code{CyclopeptideSequencing} finds a cyclic peptide with theoretical spectrum matching the ideal spectrum \code{spectrum}.
+#' 
+#' @inheritParams CheckSpectrumConsistency
+#' @return A character vector containing every amino acid string \code{peptide} such that \code{\link{PeptideSpectrum}(peptide)} is equivalent to \code{spectrum} (if such a string exists).
+#' @examples
+#' spectrum <- c(0, 113, 128, 186, 241, 299, 314, 427)
+#' CyclopeptideSequencing(spectrum)
+CyclopeptideSequencing <- function(spectrum){
+	peptides <- ""
+	parent_mass <- max(spectrum)
+	matching_peptides <- character(0)
+	while (length(peptides) > 0) {
+		# expand peptides
+		peptides <- as.vector(sapply(peptides, function(x) paste0(x, amino_acids)))
+		# check for match or inconsistency
+		for (peptide in peptides) {
+			if (PeptideMass(peptide) == parent_mass) {
+				if (identical(PeptideSpectrum(peptide), spectrum)) {
+					matching_peptides <- c(matching_peptides, peptide)
+				}
+			} else if (!CheckSpectrumConsistency(peptide, spectrum)) {
+				peptides <- peptides[peptides != peptide]
+			}
+		}
+	}
+	return(matching_peptides)
+}
