@@ -8,8 +8,9 @@ genetic_code <- c("K", "N", "K", "N", "T", "T", "T", "T", "R", "S", "R", "S", "I
 names(genetic_code) <- codons
 
 # amino acid masses
+amino_acids <- c("G", "A", "S", "P", "V", "T", "C", "I", "L", "N", "D", "K", "Q", "E", "M", "H", "F", "R", "Y", "W")
 amino_acid_mass <- c(57, 71, 87, 97, 99, 101, 103, 113, 113, 114, 115, 128, 128, 129, 131, 137, 147, 156, 163, 186)
-names(amino_acid_mass) <- c("G", "A", "S", "P", "V", "T", "C", "I", "L", "N", "D", "K", "Q", "E", "M", "H", "F", "R", "Y", "W")
+names(amino_acid_mass) <- amino_acids
 
 #' Translate an RNA codon into an amino acid string
 #' 
