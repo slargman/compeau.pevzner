@@ -246,3 +246,31 @@ PrintCyclopeptideSequencing <- function(peptides){
 	peptides_num <- sapply(peptides_num, function(x) paste(x, sep = "", collapse = "-"))
 	return(unique(peptides_num))
 }
+
+#' Compute the score of a peptide against a spectrum
+#' 
+#' In order to handle the sequencing of a peptide using noisy spectra, \code{PeptideScore} computes the score of a peptide against a spectrum. Given a cyclic or linear peptide \code{peptide} and a spectrum \code{spectrum}, the score of \code{peptide} against \code{spectrum} is defined as the number of masses shared between \code{\link{PeptideSpectrum}(peptide)} and \code{spectrum}. \code{PeptideScore} takes into account the multiplicities of shared masses, i.e. how many times each mass occurs in each spectrum.
+#' 
+#' @inheritParams FindPeptide
+#' @inheritParams CheckSpectrumConsistency
+#' @inheritParams PeptideSpectrum
+#' @return The score of \code{peptide} against \code{spectrum}.
+#' @examples
+#' peptide <- "NQEL"
+#' spectrum <- c(0, 99, 113, 114, 128, 227, 257, 299, 355, 356, 370, 371, 484)
+#' PeptideScore(peptide, spectrum)
+#' PeptideScore(peptide, spectrum, cyclic = FALSE)
+PeptideScore <- function(peptide, spectrum, cyclic = TRUE){
+	pep_spectrum <- PeptideSpectrum(peptide, cyclic = cyclic)
+	score <- 0
+
+	for (mass in pep_spectrum){
+		num_mass_pep <- sum(pep_spectrum == mass)
+		num_mass_spec <- sum(spectrum == mass)
+		score_mass <- min(num_mass_pep, num_mass_spec)
+		score <- score + score_mass
+		pep_spectrum <- pep_spectrum[pep_spectrum != mass]
+	}
+
+	return(score)
+}
