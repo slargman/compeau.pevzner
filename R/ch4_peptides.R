@@ -78,7 +78,7 @@ TranscribeDNA <- function(DNA){
 #' @return All substrings of \code{DNA} encoding \code{peptide} (if any such substrings exist). 
 #' @examples
 #' DNA <- c("ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA")
-FindPeptide(DNA, "MA")
+#' FindPeptide(DNA, "MA")
 FindPeptide <- function(DNA, peptide){
 	mRNA_length <- 3 * nchar(peptide)
 	encoding_sequences <- character(2 * nchar(DNA))
