@@ -290,7 +290,7 @@ PeptideScore <- function(peptide, spectrum, cyclic = TRUE){
 #' 
 #' @inheritParams CheckSpectrumConsistency
 #' @param leaderboard A leaderboard of linear peptides, i.e. a character vector containing amino acid strings.
-#' @param N An integer specifying that the top \code{N} peptides, including ties, in \code{leadeboard} should be retained. Due to ties, more than \code{N} peptides might be retained.
+#' @param N An integer specifying how many peptides, including ties, should be retained. Due to ties, more than \code{N} peptides might actually be retained.
 #' @return The top \code{N} peptides from \code{leaderboard} scored against \code{spectrum}.
 #' @examples
 #' leaderboard <- c("LAST", "ALST", "TLLT", "TQAS")
