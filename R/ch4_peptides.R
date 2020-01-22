@@ -176,6 +176,15 @@ PeptideMass <- function(peptide){
 	return(mass)
 }
 
+#' Compute the number of peptides of given total mass
+#' 
+#' @param mass An integer denoting a mass in daltons.
+#' @return The number of linear peptides having integer mass \code{mass}.
+#' @examples
+#' CountPeptidesWithMass(1024)
+CountPeptidesWithMass <- function(mass){
+}
+
 #' Determine whether a peptide is consistent with a spectrum
 #' 
 #' \code{CheckSpectrumConsistency} determines whether the linear peptide \code{peptide} is consistent with the experimental spectrum \code{spectrum}. A linear peptide is consistent with \code{spectrum} if every mass in its theoretical spectrum (see \code{\link{PeptideSpectrum}}) is contained in \code{spectrum}. If a mass appears more than once in the theoretical spectrum of the linear peptide, then it must appear at least as many times in \code{spectrum} in order for the linear peptide to be consistent with \code{spectrum}.
