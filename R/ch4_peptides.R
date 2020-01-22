@@ -115,7 +115,7 @@ FindPeptide <- function(DNA, peptide){
 #' PrefixMass(peptide)
 PrefixMass <- function(peptide, i = NULL){
 	# empty prefix
-	if (identical(i, 0L)) {
+	if (isTRUE(i == 0)) {
 		return(0)
 	}
 
