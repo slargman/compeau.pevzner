@@ -283,3 +283,25 @@ PeptideScore <- function(peptide, spectrum, cyclic = TRUE){
 
 	return(score)
 }
+
+#' Trim a leaderboard of peptides for sequencing
+#' 
+#' \code{TrimLeadeboard} trims a leaderboard of peptides generated in \code{\link{LeaderboardCyclopeptideSequencing}}. \code{TrimLeadeboard} sorts all the peptides in \code{leaderboard} according to their scores with respect to \code{spectrum} (see \code{link{PeptideScore}}) then retains the top \code{N} peptides in \code{leaderboard}, removing the rest. Note that the \code{\link{PeptideScore}} scores the peptides in \code{leaderboards} as linear peptides.
+#' 
+#' @inheritParams CheckSpectrumConsistency
+#' @param leaderboard A leaderboard of linear peptides, i.e. a character vector containing amino acid strings.
+#' @param N An integer specifying that the top \code{N} peptides, including ties, in \code{leadeboard} should be retained. Due to ties, more than \code{N} peptides might be retained.
+#' @return The top \code{N} peptides from \code{leaderboard} scored against \code{spectrum}.
+#' @examples
+#' leaderboard <- c("LAST", "ALST", "TLLT", "TQAS")
+#' spectrum <- c(0, 71, 87, 101, 113, 158, 184, 188, 259, 271, 372)
+#' N <- 2
+#' TrimLeaderboard(leaderboard, spectrum, 2)
+TrimLeaderboard <- function(leaderboard, spectrum, N){
+	linear_scores <- sapply(as.list(leaderboard), function(x) PeptideScore(x, spectrum, cyclic = F))
+	leaders <- tibble(pep = leaderboard, score = linear_scores)
+	leaders <- leaders[order(linear_scores, decreasing = T), ]
+	cutoff <- leaders$score[N]
+	trimmed_leaderboard <- as.vector(leaders$pep[leaders$score >= cutoff])
+	return(trimmed_leaderboard)
+}
