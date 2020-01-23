@@ -106,6 +106,7 @@ FindPeptide <- function(DNA, peptide){
 #' 
 #' @inheritParams peptide
 #' @param i An integer specifying that the prefix consists of the first \code{i} amino acids in \code{peptide}. If a value for \code{i} is not provided then a vector is returned containing the masses for all the prefixes of \code{peptide}.
+#' @param use.mass A logical scalar. Are the peptides represented by their masses instead of single letter amino acid codes?
 #' @return The combined mass in daltons of the first \code{i} amino acids of \code{peptide}.
 #' @examples
 #' peptide <- "NQEL"
@@ -113,22 +114,27 @@ FindPeptide <- function(DNA, peptide){
 #' PrefixMass(peptide, 1)
 #' PrefixMass(peptide, 4)
 #' PrefixMass(peptide)
-PrefixMass <- function(peptide, i = NULL){
+PrefixMass <- function(peptide, i = NULL, use.mass = FALSE){
 	# empty prefix
 	if (isTRUE(i == 0)) {
 		return(0)
 	}
 
+	# split by character
+	if (use.mass) {
+		mass <- peptide
+	} else {
+		mass <- amino_acid_mass[strsplit(peptide, split = "")[[1]]]
+	}
 	prefix_mass <- numeric(0)
 
 	# check for returning all prefixes
 	if (is.null(i)) {
-		for (j in 0:nchar(peptide)) {
-			prefix_mass <- c(prefix_mass, PrefixMass(peptide, j))
+		for (j in 0:length(mass)) {
+			prefix_mass <- c(prefix_mass, PrefixMass(mass, j, use.mass = TRUE))
 		}
 	} else {
-		prefix <- substring(peptide, 1:i, 1:i)
-		prefix_mass <- sum(amino_acid_mass[prefix])
+		prefix_mass <- sum(mass[1:i])
 	}
 	return(prefix_mass)
 }
