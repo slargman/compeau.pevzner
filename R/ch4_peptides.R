@@ -156,22 +156,24 @@ PrefixMass <- function(peptide, i = NULL){
 #' \code{PeptideSpectrum} generates the theoretical spectrum of the linear or cyclic amino acid string \code{peptide}. The theoretical spectrum of a peptide is the collection of all of the masses of its subpeptides, in addition to the mass 0 and the mass of the entire peptide. The theoretical spectrum can contain duplicate elements, as in the case for "NQEL", where "NQ" and "EL" have the same mass. The peptide can be either linear or cyclic, specified by the logical scalar \code{cyclic}. If the peptide is cyclic the cyclospectrum is generated, which assumes that subpeptides can wrap around the ends of \code{peptide}.
 #' 
 #' @inheritParams FindPeptide
+#' @inheritParams PrefixMass
 #' @param cyclic A logical scalar. Is the peptide cyclic? The default value for \code{cyclic} is \code{TRUE}.
 #' @return A numerical vector containing the theoretical spectrum for \code{peptide} in daltons.
 #' @examples
 #' peptide <- "LEQN"
 #' PeptideSpectrum(peptide)
 PeptideSpectrum <- function(peptide, cyclic = TRUE){
-	peptide_mass <- PrefixMass(peptide, nchar(peptide))
+	mass <- RepresentPeptideByMass(peptide)
+	peptide_mass <- PeptideMass(mass)
 	peptide_spectrum <- 0L
 
-	for (i in 0:(nchar(peptide) - 1)) {
-		for (j in (i + 1):nchar(peptide)) {
-			pep <- PrefixMass(peptide, j) - PrefixMass(peptide, i)
-			peptide_spectrum <- c(peptide_spectrum, pep)
-			if (i > 0 && j < nchar(peptide) && cyclic) {
-				pep <- peptide_mass - pep
-				peptide_spectrum <- c(peptide_spectrum, pep)
+	for (i in 0:(length(mass) - 1)) {
+		for (j in (i + 1):length(mass)) {
+			pep_mass <- PrefixMass(mass, j) - PrefixMass(mass, i)
+			peptide_spectrum <- c(peptide_spectrum, pep_mass)
+			if (i > 0 && j < length(mass) && cyclic) {
+				pep_mass <- peptide_mass - pep_mass
+				peptide_spectrum <- c(peptide_spectrum, pep_mass)
 			}
 		}
 	}
@@ -188,10 +190,8 @@ PeptideSpectrum <- function(peptide, cyclic = TRUE){
 #' PeptideMass("A")
 #' PeptideMass("NQEL")
 PeptideMass <- function(peptide){
-	n <- nchar(peptide)
-	amino_acids <- substring(peptide, 1:n, 1:n)
-	mass <- sum(amino_acid_mass[amino_acids])
-	return(mass)
+	pep_mass <- sum(RepresentPeptideByMass(peptide))
+	return(pep_mass)
 }
 
 #' Compute the number of peptides of given total mass
@@ -237,21 +237,23 @@ CheckSpectrumConsistency <- function(peptide, spectrum){
 #' @examples
 #' spectrum <- c(0, 113, 128, 186, 241, 299, 314, 427)
 #' CyclopeptideSequencing(spectrum)
-CyclopeptideSequencing <- function(spectrum){
-	peptides <- ""
+alphabet <- unique(amino_acid_mass)
+CyclopeptideSequencing <- function(spectrum, alphabet = unique(amino_acid_mass)){
+	peptides <- list(numeric(0))
 	parent_mass <- max(spectrum)
-	matching_peptides <- character(0)
+	matching_peptides <- list()
 	while (length(peptides) > 0) {
 		# expand peptides
-		peptides <- as.vector(sapply(peptides, function(x) paste0(x, amino_acids)))
+		peptides <- lapply(peptides, function(x) lapply(alphabet, function(y) c(x, y)))
+		peptides <- unlist(peptides, recursive = FALSE)
 		# check for match or inconsistency
 		for (peptide in peptides) {
 			if (PeptideMass(peptide) == parent_mass) {
 				if (identical(PeptideSpectrum(peptide), spectrum)) {
-					matching_peptides <- c(matching_peptides, peptide)
+					matching_peptides <- c(matching_peptides, list(pep_list))
 				}
 			} else if (!CheckSpectrumConsistency(peptide, spectrum)) {
-				peptides <- peptides[peptides != peptide]
+				peptides <- peptides[!sapply(peptides, identical, peptide)]
 			}
 		}
 	}
@@ -316,7 +318,10 @@ PeptideScore <- function(peptide, spectrum, cyclic = TRUE){
 #' N <- 2
 #' TrimLeaderboard(leaderboard, spectrum, 2)
 TrimLeaderboard <- function(leaderboard, spectrum, N){
-	linear_scores <- sapply(as.list(leaderboard), function(x) PeptideScore(x, spectrum, cyclic = F))
+	if (N > length(leaderboard)){
+		return(leaderboard)
+	}
+	linear_scores <- sapply(leaderboard, function(x) PeptideScore(x, spectrum, cyclic = F))
 	leaders <- tibble(pep = leaderboard, score = linear_scores)
 	leaders <- leaders[order(linear_scores, decreasing = T), ]
 	cutoff <- leaders$score[N]
@@ -334,15 +339,16 @@ TrimLeaderboard <- function(leaderboard, spectrum, N){
 #' spectrum <- c(0, 71, 113, 129, 147, 200, 218, 260, 313, 331, 347, 389, 460)
 #' leader <- LeaderboardCyclopeptideSequencing(spectrum, N)
 #' PrintCyclopeptideSequencing(leader)
-LeaderboardCyclopeptideSequencing <- function(spectrum, N){
-	leaderboard <- ""
-	leader_peptide <- ""
-	leader_score <- PeptideScore(leader_peptide, spectrum)
+LeaderboardCyclopeptideSequencing <- function(spectrum, N, alphabet = unique(amino_acid_mass)){
+	leaderboard <- list(numeric(0))
+	leader_peptide <- numeric(0)
+	leader_score <- 0
 	parent_mass <- max(spectrum)
 
 	while (length(leaderboard) > 0) {
 		# expand leaderboard
-		leaderboard <- as.vector(sapply(leaderboard, function(x) paste0(x, amino_acids)))
+		leaderboard <- lapply(leaderboard, function(x) lapply(alphabet, function(y) c(x, y)))
+		leaderboard <- unlist(leaderboard, recursive = FALSE)
 
 		# check for new leader or inconsistency
 		for (peptide in leaderboard) {
@@ -355,7 +361,7 @@ LeaderboardCyclopeptideSequencing <- function(spectrum, N){
 					leader_score <- score
 				}
 			} else if (PeptideMass(peptide) > parent_mass) {
-				leaderboard <- leaderboard[leaderboard != peptide]
+				leaderboard <- leaderboard[!sapply(leaderboard, identical, peptide)]
 			}
 		}
 
@@ -405,6 +411,6 @@ ConvolutionCyclopeptideSequencing <- function(spectrum, M, N){
 	multiplicity <- unlist(sapply(convolution, function(x) sum(convolution == x))) 
 	cutoff <- multiplicity[i_cutoff_amino_acid]
 	alphabet <- unique(convolution[multiplicity >= cutoff])
-	leader <- LeaderboardCyclopeptideSequencing(spectrum, N, alphabet)
-	return(leader)
+	leader_peptide <- LeaderboardCyclopeptideSequencing(spectrum, N, alphabet)
+	return(leader_peptide)
 }
