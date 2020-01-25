@@ -131,24 +131,19 @@ RepresentPeptideByMass <- function(peptide){
 #' PrefixMass(peptide, 1)
 #' PrefixMass(peptide, 4)
 #' PrefixMass(peptide)
-PrefixMass <- function(peptide, i = NULL, use.mass = FALSE){
+PrefixMass <- function(peptide, i = NULL){
 	# empty prefix
 	if (isTRUE(i == 0)) {
 		return(0)
 	}
 
-	# split by character
-	if (use.mass) {
-		mass <- peptide
-	} else {
-		mass <- amino_acid_mass[strsplit(peptide, split = "")[[1]]]
-	}
+	mass <- RepresentPeptideByMass(peptide)
 	prefix_mass <- numeric(0)
 
 	# check for returning all prefixes
 	if (is.null(i)) {
 		for (j in 0:length(mass)) {
-			prefix_mass <- c(prefix_mass, PrefixMass(mass, j, use.mass = TRUE))
+			prefix_mass <- c(prefix_mass, PrefixMass(mass, j))
 		}
 	} else {
 		prefix_mass <- sum(mass[1:i])
