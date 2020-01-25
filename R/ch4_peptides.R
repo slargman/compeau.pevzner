@@ -311,3 +311,43 @@ TrimLeaderboard <- function(leaderboard, spectrum, N){
 	trimmed_leaderboard <- as.vector(leaders$pep[leaders$score >= cutoff])
 	return(trimmed_leaderboard)
 }
+
+#' Determine a peptide sequence from a noisy experimental spectrum
+#' 
+#' @inheritParams CheckSpectrumConsistency
+#' @inheritParams TrimLeaderboard
+#' @return
+#' @examples
+#' N <- 10
+#' spectrum <- c(0, 71, 113, 129, 147, 200, 218, 260, 313, 331, 347, 389, 460)
+#' leader <- LeaderboardCyclopeptideSequencing(spectrum, N)
+#' PrintCyclopeptideSequencing(leader)
+LeaderboardCyclopeptideSequencing <- function(spectrum, N){
+	leaderboard <- ""
+	leader_peptide <- ""
+	leader_score <- PeptideScore(leader_peptide, spectrum)
+	parent_mass <- max(spectrum)
+
+	while (length(leaderboard) > 0) {
+		# expand leaderboard
+		leaderboard <- as.vector(sapply(leaderboard, function(x) paste0(x, amino_acids)))
+
+		# check for new leader or inconsistency
+		for (peptide in leaderboard) {
+			if (PeptideMass(peptide) == parent_mass) {
+				score <- PeptideScore(peptide, spectrum, cyclic = F)
+
+				# update leader
+				if (score > leader_score) {
+					leader_peptide <- peptide
+					leader_score <- score
+				}
+			} else if (PeptideMass(peptide) > parent_mass) {
+				leaderboard <- leaderboard[leaderboard != peptide]
+			}
+		}
+
+		leaderboard <- TrimLeaderboard(leaderboard, spectrum, N)
+	}
+	return(leader_peptide)
+}
