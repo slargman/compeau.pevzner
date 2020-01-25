@@ -351,3 +351,23 @@ LeaderboardCyclopeptideSequencing <- function(spectrum, N){
 	}
 	return(leader_peptide)
 }
+
+#' Generate the convolution of a spectrum
+#' 
+#' \code{SpectrumConvolution} generates the convolution of a peptide spectrum (see \code{\link{PeptideSpectrum}}) in order to generate an alphabet of amino acids to be used in determining a peptide from a noisy spectrum. The convolution of a spectrum is defined as the positive differences of masses in the spectrum. The most frequently appearing integers in the convolution ranging from 57 to 200 can be used as the amino acid alphabet for sequencing a peptide.
+#' 
+#' @inheritParams CheckSpectrumConsistency
+#' @return A numeric vector containing all the positive differences of masses in \code{spectrum} listed in decreasing order of their multiplicities.
+#' @examples
+#' spectrum <- c(0, 137, 186, 323)
+#' SpectrumConvolution(spectrum)
+#' spectrum <- PeptideSpectrum("NQEL")
+#' SpectrumConvolution(spectrum)
+SpectrumConvolution <- function(spectrum){
+	convolution <- unlist(sapply(seq_along(spectrum), function(i) abs(spectrum[-(1:i)] - spectrum[i])))
+	convolution <- convolution[convolution != 0]
+	convolution <- sort(convolution)
+	multiplicity <- unlist(sapply(convolution, function(x) sum(convolution == x))) 
+	convolution <- convolution[order(multiplicity, decreasing = T)]
+	return(convolution)
+}
