@@ -100,6 +100,23 @@ FindPeptide <- function(DNA, peptide){
 	return(encoding_sequences)
 }
 
+#' Represent a peptide by the masses of its amino acids
+#' 
+#' @inheritParams FindPeptide
+#' @return
+#' @examples
+#' peptide <- "NQEL"
+#' pep_mass <- RepresentPeptideByMass(peptide)
+#' RepresentPeptideByMass(pep_mass)
+RepresentPeptideByMass <- function(peptide){
+	if (is.numeric(peptide)) {
+		mass <- peptide
+	} else if (is.character(peptide)) {
+		mass <- amino_acid_mass[strsplit(peptide, split = "")[[1]]]
+	}
+	return(mass)
+}
+
 #' Find the mass of the prefix of a peptide string
 #' 
 #' \code{PrefixMass} finds the mass of the first \code{i} amino acids in an amino acid string \code{peptide} (i.e. a peptide). If a value for \code{i} is not provided \code{PrefixMass} instead returns the vector containing the masses for all the prefixes of \code{peptide} starting from the null prefix with mass 0 and ending with the entirety of \code{peptide}.
