@@ -371,3 +371,28 @@ SpectrumConvolution <- function(spectrum){
 	convolution <- convolution[order(multiplicity, decreasing = T)]
 	return(convolution)
 }
+
+#' Determine a peptide sequence using non-proteinogenic amino acids
+#' 
+#' @inheritParams CheckSpectrumConsistency
+#' @inheritParams TrimLeaderboard
+#' @param M An integer determining how many amino acids should be used in the alphabet for constructing peptides. The top \code{M} amino acids (and ties) of the convolution of \code{spectrum} that fall between 57 and 200 are used in the alphabet. Due to ties there may be more than \code{M} amino acids in the alphabet.
+#' @return A cyclic peptide \code{leader_peptide} with amino acids taken from the top \code{M} elements (and ties) of the convolution of \code{spectrum} that fall between 57 and 200, and where the size of the leaderboard is restricted to the top \code{N} (and ties).
+#' @examples
+#' M <- 20
+#' N <- 60
+#' spectrum <- c(57, 57, 71, 99, 129, 137, 170, 186, 194, 208, 228, 265, 285, 299, 307, 323, 356, 364, 394, 422, 493)
+#' ConvolutionCyclopeptideSequencing(spectrum, M, N)
+ConvolutionCyclopeptideSequencing <- function(spectrum, M, N){
+	# generate amino acid alphabet
+	convolution <- SpectrumConvolution(spectrum)
+	# mass cutoffs
+	convolution <- convolution[57 <= convolution & convolution <= 200]
+	cutoff_amino_acid <- unique(convolution)[M]
+	i_cutoff_amino_acid <- which(convolution == cutoff_amino_acid)[1]
+	multiplicity <- unlist(sapply(convolution, function(x) sum(convolution == x))) 
+	cutoff <- multiplicity[i_cutoff_amino_acid]
+	alphabet <- unique(convolution[multiplicity >= cutoff])
+	leader <- LeaderboardCyclopeptideSequencing(spectrum, N, alphabet)
+	return(leader)
+}
