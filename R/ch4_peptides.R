@@ -101,20 +101,26 @@ FindPeptide <- function(DNA, peptide){
 }
 
 #' Represent a peptide by the masses of its amino acids
+#'
+#' \code{RepresentPeptideByMass} represents a peptide \code{peptide} by the mass (in Daltons) of its amino acids rather than the single letter amino acid code. This allows for an extended alphabet for use in peptide sequencing, in particular non-proteinogenic amino acids of arbitrary mass.
 #' 
 #' @inheritParams FindPeptide
-#' @return
+#' @return A character vector consisting of the masses of the constituent amino acids of \code{peptide} separated by "-"
 #' @examples
 #' peptide <- "NQEL"
 #' pep_mass <- RepresentPeptideByMass(peptide)
 #' RepresentPeptideByMass(pep_mass)
 RepresentPeptideByMass <- function(peptide){
-	if (is.numeric(peptide)) {
-		mass <- peptide
-	} else if (is.character(peptide)) {
-		mass <- amino_acid_mass[strsplit(peptide, split = "")[[1]]]
+	codes <- grepl("[[:upper:]]", peptide)
+	numbers <- grepl("[[:digit:]]", pep_mass)
+
+	if (!all(codes | numbers)) {
+		stop("peptide consist of letter codes or masses")
 	}
-	return(mass)
+
+	peptide[codes] <- vapply(peptide[codes], function(x) paste(amino_acid_mass[strsplit(x, split = "")[[1]]], sep = "", collapse = "-"), character(sum(codes)))
+
+	return(peptide)
 }
 
 #' Find the mass of the prefix of a peptide string
