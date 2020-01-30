@@ -123,6 +123,27 @@ RepresentPeptideByMass <- function(peptide){
 	return(peptide)
 }
 
+#' Convert a peptide string to a numeric vector of masses
+#' 
+#' \code{ConvertPeptideToNumeric} converts a peptide represented by a string of single letter codes or masses of the corresponding amino acids into a numeric vector of the amino acid masses.
+#' 
+#' @inheritParams RepresentPeptideByMass
+#' @return A numeric vector containing the masses of the constituent amino acids of \code{peptide}
+#' @examples
+#' peptide <- "NQEL"
+#' pep_mass <- RepresentPeptideByMass(peptide)
+#' ConvertPeptideToNumeric(peptide)
+#' ConvertPeptideToNumeric(pep_mass)
+ConvertPeptideToNumeric <- function(peptide){
+	if (length(peptide) > 1) {
+		break("peptide must have length 1")
+	}
+	pep <- RepresentPeptideByMass(peptide)
+	pep <- unlist(strsplit(pep, split = "-", fixed = FALSE))
+	pep <- as.numeric(pep)
+	return(pep)
+}
+
 #' Find the mass of the prefix of a peptide string
 #' 
 #' \code{PrefixMass} finds the mass of the first \code{i} amino acids in an amino acid string \code{peptide} (i.e. a peptide). If a value for \code{i} is not provided \code{PrefixMass} instead returns the vector containing the masses for all the prefixes of \code{peptide} starting from the null prefix with mass 0 and ending with the entirety of \code{peptide}.
