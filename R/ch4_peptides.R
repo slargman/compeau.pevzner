@@ -166,16 +166,16 @@ PrefixMass <- function(peptide, i = NULL){
 		return(0)
 	}
 
-	mass <- RepresentPeptideByMass(peptide)
+	pep <- ConvertPeptideToNumeric(peptide)
 	prefix_mass <- numeric(0)
 
 	# check for returning all prefixes
 	if (is.null(i)) {
-		for (j in 0:length(mass)) {
-			prefix_mass <- c(prefix_mass, PrefixMass(mass, j))
+		for (j in 0:length(pep)) {
+			prefix_mass <- c(prefix_mass, PrefixMass(peptide, j))
 		}
 	} else {
-		prefix_mass <- sum(mass[1:i])
+		prefix_mass <- sum(pep[1:i])
 	}
 	return(prefix_mass)
 }
