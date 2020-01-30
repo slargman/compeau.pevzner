@@ -104,7 +104,7 @@ FindPeptide <- function(DNA, peptide){
 #'
 #' \code{RepresentPeptideByMass} represents a peptide \code{peptide} by the mass (in Daltons) of its amino acids rather than the single letter amino acid code. This allows for an extended alphabet for use in peptide sequencing, in particular non-proteinogenic amino acids of arbitrary mass.
 #' 
-#' @inheritParams FindPeptide
+#' @param peptide A character vector of peptides. The elements of the vector are peptides which can be represented by a string of one letter codes (i.e. all letters excluding B, J, O, U, X, and Z) or the corresponding masses of the amino acids separated by "-".
 #' @return A character vector consisting of the masses of the constituent amino acids of \code{peptide} separated by "-"
 #' @examples
 #' peptide <- "NQEL"
