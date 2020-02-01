@@ -180,6 +180,22 @@ PrefixMass <- function(peptide, i = NULL){
 	return(prefix_mass)
 }
 
+#' Find the mass of a peptide
+#' 
+#' \code{PeptideMass} find the mass of the amino acid string \code{peptide} in daltons.
+#' 
+#' @inheritParams FindPeptide
+#' @return The mass in daltons of the amino acid string \code{peptide}.
+#' @examples
+#' PeptideMass("A")
+#' PeptideMass("NQEL")
+#' pep <- ConvertPeptideToNumeric("NQEL")
+#' PeptideMass(pep)
+PeptideMass <- function(peptide){
+	pep_mass <- sum(ConvertPeptideToNumeric(peptide))
+	return(pep_mass)
+}
+
 #' Generate the theoretical spectrum of a peptide
 #' 
 #' \code{PeptideSpectrum} generates the theoretical spectrum of the linear or cyclic amino acid string \code{peptide}. The theoretical spectrum of a peptide is the collection of all of the masses of its subpeptides, in addition to the mass 0 and the mass of the entire peptide. The theoretical spectrum can contain duplicate elements, as in the case for "NQEL", where "NQ" and "EL" have the same mass. The peptide can be either linear or cyclic, specified by the logical scalar \code{cyclic}. If the peptide is cyclic the cyclospectrum is generated, which assumes that subpeptides can wrap around the ends of \code{peptide}.
@@ -207,20 +223,6 @@ PeptideSpectrum <- function(peptide, cyclic = TRUE){
 		}
 	}
 	return(sort(peptide_spectrum))
-}
-
-#' Find the mass of a peptide
-#' 
-#' \code{PeptideMass} find the mass of the amino acid string \code{peptide} in daltons.
-#' 
-#' @inheritParams FindPeptide
-#' @return The mass in daltons of the amino acid string \code{peptide}.
-#' @examples
-#' PeptideMass("A")
-#' PeptideMass("NQEL")
-PeptideMass <- function(peptide){
-	pep_mass <- sum(RepresentPeptideByMass(peptide))
-	return(pep_mass)
 }
 
 #' Compute the number of peptides of given total mass
