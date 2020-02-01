@@ -358,18 +358,18 @@ TrimLeaderboard <- function(leaderboard, spectrum, N){
 #' @examples
 #' N <- 10
 #' spectrum <- c(0, 71, 113, 129, 147, 200, 218, 260, 313, 331, 347, 389, 460)
-#' leader <- LeaderboardCyclopeptideSequencing(spectrum, N)
-#' PrintCyclopeptideSequencing(leader)
+#' LeaderboardCyclopeptideSequencing(spectrum, N)
 LeaderboardCyclopeptideSequencing <- function(spectrum, N, alphabet = unique(amino_acid_mass)){
-	leaderboard <- list(numeric(0))
-	leader_peptide <- numeric(0)
+	leaderboard <- ""
+	leader_peptide <- character(0)
 	leader_score <- 0
 	parent_mass <- max(spectrum)
+	sep <- ""
 
 	while (length(leaderboard) > 0) {
 		# expand leaderboard
-		leaderboard <- lapply(leaderboard, function(x) lapply(alphabet, function(y) c(x, y)))
-		leaderboard <- unlist(leaderboard, recursive = FALSE)
+		leaderboard <- as.vector(vapply(leaderboard, function(x) paste(x, alphabet, sep = sep), character(length(alphabet))))
+		sep <- "-"
 
 		# check for new leader or inconsistency
 		for (peptide in leaderboard) {
@@ -382,10 +382,9 @@ LeaderboardCyclopeptideSequencing <- function(spectrum, N, alphabet = unique(ami
 					leader_score <- score
 				}
 			} else if (PeptideMass(peptide) > parent_mass) {
-				leaderboard <- leaderboard[!sapply(leaderboard, identical, peptide)]
+				leaderboard <- leaderboard[leaderboard != peptide]
 			}
 		}
-
 		leaderboard <- TrimLeaderboard(leaderboard, spectrum, N)
 	}
 	return(leader_peptide)
