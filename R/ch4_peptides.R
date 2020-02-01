@@ -207,6 +207,8 @@ PeptideMass <- function(peptide){
 #' @examples
 #' peptide <- "LEQN"
 #' PeptideSpectrum(peptide)
+#' peptide <- RepresentPeptideByMass("LEQN")
+#' PeptideSpectrum(peptide)
 PeptideSpectrum <- function(peptide, cyclic = TRUE){
 	mass <- RepresentPeptideByMass(peptide)
 	peptide_mass <- PeptideMass(mass)
