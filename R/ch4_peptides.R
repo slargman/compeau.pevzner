@@ -135,10 +135,10 @@ RepresentPeptideByMass <- function(peptide){
 #' ConvertPeptideToNumeric(peptide)
 #' ConvertPeptideToNumeric(pep_mass)
 ConvertPeptideToNumeric <- function(peptide){
-	if (length(peptide) > 1) {
-		break("peptide must have length 1")
-	} else if (is.numeric(peptide)) {
+	if (is.numeric(peptide)) {
 		return(peptide)
+	} else if (length(peptide) > 1) {
+		stop("peptide must have length 1")
 	}
 	pep <- RepresentPeptideByMass(peptide)
 	pep <- unlist(strsplit(pep, split = "-", fixed = FALSE))
