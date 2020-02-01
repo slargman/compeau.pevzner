@@ -247,7 +247,11 @@ CountPeptidesWithMass <- function(mass){
 #' tyrocidine_B1 <- "VKLFPWFNQY"
 #' spectrum <- PeptideSpectrum(tyrocidine_B1)
 #' CheckSpectrumConsistency("VKF", spectrum)
+#' CheckSpectrumConsistency(RepresentPeptideByMass("VKF"), spectrum)
 #' CheckSpectrumConsistency("VKY", spectrum)
+#' CheckSpectrumConsistency(RepresentPeptideByMass("VKY"), spectrum)
+#' CheckSpectrumConsistency("VKL", spectrum)
+#' CheckSpectrumConsistency(RepresentPeptideByMass("VKL"), spectrum)
 CheckSpectrumConsistency <- function(peptide, spectrum){
 	pep_spectrum <- PeptideSpectrum(peptide, cyclic = F)
 	for (mass in pep_spectrum) {
