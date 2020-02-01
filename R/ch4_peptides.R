@@ -210,15 +210,15 @@ PeptideMass <- function(peptide){
 #' peptide <- RepresentPeptideByMass("LEQN")
 #' PeptideSpectrum(peptide)
 PeptideSpectrum <- function(peptide, cyclic = TRUE){
-	mass <- RepresentPeptideByMass(peptide)
-	peptide_mass <- PeptideMass(mass)
+	pep <- ConvertPeptideToNumeric(peptide)
+	peptide_mass <- PeptideMass(pep)
 	peptide_spectrum <- 0L
 
-	for (i in 0:(length(mass) - 1)) {
-		for (j in (i + 1):length(mass)) {
-			pep_mass <- PrefixMass(mass, j) - PrefixMass(mass, i)
+	for (i in 0:(length(pep) - 1)) {
+		for (j in (i + 1):length(pep)) {
+			pep_mass <- PrefixMass(pep, j) - PrefixMass(pep, i)
 			peptide_spectrum <- c(peptide_spectrum, pep_mass)
-			if (i > 0 && j < length(mass) && cyclic) {
+			if (i > 0 && j < length(pep) && cyclic) {
 				pep_mass <- peptide_mass - pep_mass
 				peptide_spectrum <- c(peptide_spectrum, pep_mass)
 			}
