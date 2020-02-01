@@ -274,43 +274,27 @@ CheckSpectrumConsistency <- function(peptide, spectrum){
 #' @examples
 #' spectrum <- c(0, 113, 128, 186, 241, 299, 314, 427)
 #' CyclopeptideSequencing(spectrum)
-alphabet <- unique(amino_acid_mass)
 CyclopeptideSequencing <- function(spectrum, alphabet = unique(amino_acid_mass)){
-	peptides <- list(numeric(0))
+	peptides <- ""
 	parent_mass <- max(spectrum)
-	matching_peptides <- list()
+	matching_peptides <- character(0)
+	sep <- ""
 	while (length(peptides) > 0) {
 		# expand peptides
-		peptides <- lapply(peptides, function(x) lapply(alphabet, function(y) c(x, y)))
-		peptides <- unlist(peptides, recursive = FALSE)
+		peptides <- as.vector(vapply(peptides, function(x) paste(x, alphabet, sep = sep), character(length(alphabet))))
+		sep <- "-"
 		# check for match or inconsistency
 		for (peptide in peptides) {
 			if (PeptideMass(peptide) == parent_mass) {
 				if (identical(PeptideSpectrum(peptide), spectrum)) {
-					matching_peptides <- c(matching_peptides, list(pep_list))
+					matching_peptides <- c(matching_peptides, peptide)
 				}
 			} else if (!CheckSpectrumConsistency(peptide, spectrum)) {
-				peptides <- peptides[!sapply(peptides, identical, peptide)]
+				peptides <- peptides[peptides != peptide]
 			}
 		}
 	}
 	return(matching_peptides)
-}
-
-#' Represent a peptide by its amino acid masses
-#' 
-#' \code{PrintCyclopeptideSequencing} replaces the 20 character long alphabet of single letter amino acid codes with the 18 integer long alphabet of amino acid masses. \code{PrintCyclopeptideSequencing} formats its output in the proper manner for input into Rosalind. 
-#' 
-#' @param peptides A character vector consisting of amino acid strings, i.e. strings consisting only of letters and excluding B, J, O, U, X, and Z.
-#' @return A character vector consisting of the peptides in \code{peptides} coded by the masses of their constituent amino acids, with each mass separated by "-".
-#' @examples
-#' spectrum <- c(0, 113, 128, 186, 241, 299, 314, 427)
-#' peptides <- CyclopeptideSequencing(spectrum)
-#' PrintCyclopeptideSequencing(peptides)
-PrintCyclopeptideSequencing <- function(peptides){
-	peptides_num <- lapply(as.list(peptides), function(x) amino_acid_mass[substring(x, 1:nchar(x), 1:nchar(x))])
-	peptides_num <- sapply(peptides_num, function(x) paste(x, sep = "", collapse = "-"))
-	return(unique(peptides_num))
 }
 
 #' Compute the score of a peptide against a spectrum
