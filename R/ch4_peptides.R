@@ -229,11 +229,21 @@ PeptideSpectrum <- function(peptide, cyclic = TRUE){
 
 #' Compute the number of peptides of given total mass
 #' 
+#' \code{CountPeptidesWithMass} computes the number of linear peptides with mass in daltons equal to \code{mass}.
+#'
 #' @param mass An integer denoting a mass in daltons.
 #' @return The number of linear peptides having integer mass \code{mass}.
 #' @examples
 #' CountPeptidesWithMass(1024)
 CountPeptidesWithMass <- function(mass){
+	masses <- unique(amino_acid_mass)
+	counts <- rep(0, mass)
+	counts[masses] <- 1
+
+	for (m in 57:mass) {
+		counts[m + masses] <- counts[m + masses] + counts[m]
+	}
+	return(counts[mass])
 }
 
 #' Determine whether a peptide is consistent with a spectrum
