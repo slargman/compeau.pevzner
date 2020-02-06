@@ -25,7 +25,7 @@ writeClipboard(as.character(num))
 dataset <- readLines("../data/rosalind_ba4e.txt")
 spectrum <- as.numeric(strsplit(dataset, split = " ", fixed = TRUE)[[1]])
 peptides <- CyclopeptideSequencing(spectrum)
-peptides_num <- paste(PrintCyclopeptideSequencing(peptides), sep = "", collapse = " ")
+peptides_num <- paste(peptides, sep = "", collapse = " ")
 writeClipboard(peptides_num)
 
 # 4F
