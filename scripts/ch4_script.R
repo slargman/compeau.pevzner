@@ -16,6 +16,11 @@ cyclospectrum <- PeptideSpectrum(peptide)
 output <- paste(cyclospectrum, sep = "", collapse = " ")
 writeClipboard(output)
 
+# 4D
+m <- as.integer(readLines("../data/rosalind_ba4d.txt"))
+num <- CountPeptidesWithMass(m)
+writeClipboard(as.character(num))
+
 # 4E
 dataset <- readLines("../data/rosalind_ba4e.txt")
 spectrum <- as.numeric(strsplit(dataset, split = " ", fixed = TRUE)[[1]])
