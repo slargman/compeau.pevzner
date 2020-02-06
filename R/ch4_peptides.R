@@ -112,7 +112,7 @@ FindPeptide <- function(DNA, peptide){
 #' RepresentPeptideByMass(pep_mass)
 RepresentPeptideByMass <- function(peptide){
 	codes <- grepl("[[:upper:]]", peptide)
-	numbers <- grepl("[[:digit:]]", pep_mass)
+	numbers <- grepl("[[:digit:]]", peptide)
 
 	if (!all(codes | numbers)) {
 		stop("peptide consist of letter codes or masses")
