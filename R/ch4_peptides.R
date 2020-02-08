@@ -352,11 +352,11 @@ TrimLeaderboard <- function(leaderboard, spectrum, N){
 	if (N > length(leaderboard)){
 		return(leaderboard)
 	}
-	linear_scores <- sapply(leaderboard, function(x) PeptideScore(x, spectrum, cyclic = F))
-	leaders <- tibble(pep = leaderboard, score = linear_scores)
-	leaders <- leaders[order(linear_scores, decreasing = T), ]
-	cutoff <- leaders$score[N]
-	trimmed_leaderboard <- as.vector(leaders$pep[leaders$score >= cutoff])
+	score <- vapply(leaderboard, function(x) PeptideScore(x, spectrum, cyclic = F), numeric(1))
+	leaders <- leaderboard[order(score, decreasing = T)]
+	score <- sort(score, decreasing = T)
+	cutoff <- score[N]
+	trimmed_leaderboard <- leaders[score >= cutoff]
 	return(trimmed_leaderboard)
 }
 
