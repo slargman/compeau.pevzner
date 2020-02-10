@@ -48,3 +48,9 @@ spectrum <- as.numeric(strsplit(dataset[1], split = " ", fixed = TRUE)[[1]])
 convolution <- SpectrumConvolution(spectrum)
 convolution <- paste(convolution, sep = "", collapse = " ")
 writeClipboard(convolution)
+
+# 4J
+peptide <- readLines("../data/rosalind_ba4j.txt")
+cyclospectrum <- PeptideSpectrum(peptide, cyclic = F)
+output <- paste(cyclospectrum, sep = "", collapse = " ")
+writeClipboard(output)
