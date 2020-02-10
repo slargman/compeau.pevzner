@@ -54,3 +54,10 @@ peptide <- readLines("../data/rosalind_ba4j.txt")
 cyclospectrum <- PeptideSpectrum(peptide, cyclic = F)
 output <- paste(cyclospectrum, sep = "", collapse = " ")
 writeClipboard(output)
+
+# 4K
+dataset <- readLines("../data/rosalind_ba4k.txt")
+peptide <- dataset[1]
+spectrum <- as.numeric(strsplit(dataset[2], split = " ", fixed = TRUE)[[1]])
+score <- as.character(PeptideScore(peptide, spectrum, cyclic = F))
+writeClipboard(score)
