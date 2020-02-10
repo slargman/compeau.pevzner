@@ -41,3 +41,10 @@ N <- as.integer(dataset[1])
 spectrum <- as.numeric(strsplit(dataset[2], split = " ", fixed = TRUE)[[1]])
 peptide <- LeaderboardCyclopeptideSequencing(spectrum, N)
 writeClipboard(peptide[1])
+
+# 4H
+dataset <- readLines("../data/rosalind_ba4h.txt")
+spectrum <- as.numeric(strsplit(dataset[1], split = " ", fixed = TRUE)[[1]])
+convolution <- SpectrumConvolution(spectrum)
+convolution <- paste(convolution, sep = "", collapse = " ")
+writeClipboard(convolution)
