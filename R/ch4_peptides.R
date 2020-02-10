@@ -437,6 +437,10 @@ SpectrumConvolution <- function(spectrum){
 #' N <- 60
 #' spectrum <- c(57, 57, 71, 99, 129, 137, 170, 186, 194, 208, 228, 265, 285, 299, 307, 323, 356, 364, 394, 422, 493)
 #' ConvolutionCyclopeptideSequencing(spectrum, M, N)
+#' spectrum <- c(0, 97, 99, 113, 114, 115, 128, 128, 147, 147, 163, 186, 227, 241, 242, 244, 244, 256, 260, 261, 262, 283, 291, 309, 330, 333, 340, 347, 357, 385, 388, 389, 390, 390, 405, 430, 430, 435, 447, 485, 487, 503, 504, 518, 543, 544, 552, 575, 577, 584, 599, 608, 631, 632, 650, 651, 653, 671, 672, 690, 691, 717, 738, 745, 747, 770, 778, 779, 804, 818, 819, 827, 835, 837, 875, 892, 892, 917, 932, 932, 933, 934, 965, 982, 989, 1031, 1039, 1060, 1061, 1062, 1078, 1080, 1081, 1095, 1136, 1159, 1175, 1175, 1194, 1194, 1208, 1209, 1223, 1225, 1322)
+#' M <- 20
+#' N <- 1000
+#' ConvolutionCyclopeptideSequencing(spectrum, M, N)
 ConvolutionCyclopeptideSequencing <- function(spectrum, M, N){
 	# generate amino acid alphabet
 	convolution <- SpectrumConvolution(spectrum)
