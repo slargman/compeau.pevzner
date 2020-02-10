@@ -61,3 +61,11 @@ peptide <- dataset[1]
 spectrum <- as.numeric(strsplit(dataset[2], split = " ", fixed = TRUE)[[1]])
 score <- as.character(PeptideScore(peptide, spectrum, cyclic = F))
 writeClipboard(score)
+
+# 4L
+dataset <- readLines("../data/rosalind_ba4l.txt")
+leaderboard <- strsplit(dataset[1], split = " ", fixed = TRUE)[[1]]
+spectrum <- as.numeric(strsplit(dataset[2], split = " ", fixed = TRUE)[[1]])
+N <- as.numeric(dataset[3])
+leaderboard <- TrimLeaderboard(leaderboard, spectrum, N)
+writeClipboard(as.character(leaderboard))
