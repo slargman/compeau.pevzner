@@ -31,3 +31,32 @@ ReadMatrix <- function(rows){
 	mat <- t(sapply(mat, as.numeric))
 	return(mat)
 }
+
+n <- 4
+m <- 4
+rows1 <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3") 
+down <- ReadMatrix(rows1)
+rows2 <- c("3 2 4 0", "3 2 4 2", "0 7 3 3", "3 3 0 2", "1 3 2 2")
+right <- ReadMatrix(rows2)
+ManhattanTourist(n+1, m+1, down, right)
+ManhattanTourist <- function(n, m, down, right){
+	s <- matrix(nrow = n, ncol = m)
+	s[1, 1] <- 0
+	# fill in left edge
+	for (i in 2:n) {
+		s[i, 1] <- s[i - 1, 1] + down[i - 1, 1]
+	}
+	# fill in top edge
+	for (j in 2:m) {
+		s[1, j] <- s[1, j - 1] + right[1, j - 1]
+	}
+	# fill in the rest
+	for (i in 2:n) {
+		for (j in 2:m) {
+			s[i, j] <- max(s[i - 1, j] + down[i - 1, j], s[i, j - 1] + right[i, j - 1])
+		}
+	}
+	return(s[n,m])
+}
+
+
