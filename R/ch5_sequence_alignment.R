@@ -23,3 +23,11 @@ DPChange <- function(money, coins){
 	}
 	return(min_num_coins[money + 1])
 }
+
+rows <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3") 
+ReadMatrix(rows)
+ReadMatrix <- function(rows){
+	mat <- strsplit(rows, split = " ", fixed = T)
+	mat <- t(sapply(mat, as.numeric))
+	return(mat)
+}
