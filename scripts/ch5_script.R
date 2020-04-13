@@ -15,3 +15,10 @@ down <- ReadMatrix(dataset[2:(divider - 1)])
 right <- ReadMatrix(dataset[-(1:divider)])
 len <- ManhattanTourist(n+1, m+1, down, right)
 writeClipboard(as.character(len))
+
+# 5C
+dataset <- readLines("../data/rosalind_ba5c.txt")
+v <- dataset[1]
+w <- dataset[2]
+lcs <- LongestCommonSubsequence(v, w)
+writeClipboard(lcs)
