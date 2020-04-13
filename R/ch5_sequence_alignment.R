@@ -78,9 +78,19 @@ ManhattanTourist <- function(n, m, down, right){
 	return(s[n,m])
 }
 
-v <- "AACCTTGG"
-w <- "ACACTGTGA"
-LCSBacktrack(v, w)
+#' Generate matrix of last edges used in a longest path
+#' 
+#' \code{LCSBacktrack} creates a matrix that records which edge in the alignment graph for \code{v} and \code{w} was used to compute the values \code{s[i, j]}, which gives the length of a longest path to the node \emph{(i, j)}, i.e. the highest scoring alignment of the first \emph{i - 1} characters of \code{v} and the first \code{j - 1} characters of \code{w}. The resulting backtrack matrix consists of the backtracking pointers \code{v}, \code{>}, or \code{L} which indicates whether the longest path to node \emph{(i,j)} came from above (\code{v}), the right (\code{>}), or diagonally (\code{L}).
+#' 
+#' The alignment graph for \code{v} and \code{w} is a directed acyclic graph consisting of a \code{nchar(v) + 1} by \code{nchar(w) + 1} grid of nodes with directed edges pointing to the right, downwards, and diagonally to the bottom right from each node (except nodes along the bottom and right borders of the grid as appropriate). An alignment path is a path from the source node \emph{(0, 0)} to the sink node \code{(nchar(v) + 1, nchar(w) + 1)}. Traversing a rightward edge corresponds to the use of a character in \code{v} in the alignment (insertion), a downward edge corresponds to the use of a character in \code{w} in the alignment (deletion), and a diagonal edge corresponds to the use of characters from both \code{v} and \code{w} in the alignment (either a match or a mismatch). All diagonal edges corresponding to matches are assigned weight of \emph{1} and all other edges are assigned weight of \emph{0}.
+#' 
+#' @param v A character string.
+#' @param w A character string.
+#' @return An \code{nchar(v) + 1} by \code{nchar(w) + 1} character matrix consisting of the backtrack points "v", ">", or "L".
+#' @examples
+#' v <- "AACCTTGG"
+#' w <- "ACACTGTGA"
+#' LCSBacktrack(v, w)
 LCSBacktrack <- function(v,w){
 	length_v <- nchar(v)
 	length_w <- nchar(w)
