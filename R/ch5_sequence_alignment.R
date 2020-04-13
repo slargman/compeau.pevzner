@@ -59,4 +59,48 @@ ManhattanTourist <- function(n, m, down, right){
 	return(s[n,m])
 }
 
+v <- "AACCTTGG"
+w <- "ACACTGTGA"
+LCSBacktrack(v, w)
+LCSBacktrack <- function(v,w){
+	length_v <- nchar(v)
+	length_w <- nchar(w)
 
+	vec_v <- strsplit(v, split = "")[[1]]
+	vec_w <- strsplit(w, split = "")[[1]]
+
+	s <- matrix(nrow = length_v + 1, ncol = length_w + 1)
+	backtrack <- matrix(nrow = length_v + 1, ncol = length_w + 1)
+	
+	# fill in left edge
+	for (i in 1:(length_v + 1)){
+		s[i, 1] <- 0
+		backtrack[i, 1] <- "v"
+	}
+
+	# fill in top edge
+	for (j in 1:(length_w + 1)){
+		s[1, j] <- 0
+		backtrack[1, j] <- ">"
+	}
+
+	# fill in the rest
+	for (i in 2:(length_v + 1)){
+		for (j in 2:(length_w + 1)){
+
+			# fill in s[i,j]
+			s[i, j] <- max(s[i - 1, j], s[i, j - 1], s[i - 1, j - 1] + (vec_v[i - 1] == vec_w[j - 1])) 
+
+			# fill in backtrack[i,j]
+			if (s[i, j] == s[i - 1, j]) {
+				backtrack[i, j] <- "v"
+			} else if (s[i, j] == s[i, j - 1]) {
+				backtrack[i, j] <- ">"
+			} else if ((s[i,j] == (s[i - 1, j - 1] + 1)) && (vec_v[i - 1] == vec_w[j - 1])){
+				backtrack[i, j] <- "L"
+			}
+		}
+	}
+
+	return(backtrack)
+}
