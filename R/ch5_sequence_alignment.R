@@ -104,3 +104,21 @@ LCSBacktrack <- function(v,w){
 
 	return(backtrack)
 }
+
+v <- "AACCTTGG"
+w <- "ACACTGTGA"
+backtrack <- LCSBacktrack(v, w)
+OutputLCS(backtrack, v, nchar(v), nchar(w))
+OutputLCS <- function(backtrack, v, i, j){
+	if ((i == 0) || (j == 0)) {
+		return("")
+	}
+
+	if (backtrack[i + 1, j + 1] == "v"){
+		OutputLCS(backtrack, v, i - 1, j)
+	} else if (backtrack[i + 1, j + 1] == ">"){
+		OutputLCS(backtrack, v, i, j - 1)
+	} else {
+		return(paste0(OutputLCS(backtrack, v, i - 1, j - 1), substring(v, i, i)))
+	}
+}
