@@ -38,7 +38,7 @@ rows1 <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3")
 down <- ReadMatrix(rows1)
 rows2 <- c("3 2 4 0", "3 2 4 2", "0 7 3 3", "3 3 0 2", "1 3 2 2")
 right <- ReadMatrix(rows2)
-ManhattanTourist(n+1, m+1, down, right)
+ManhattanTourist(n + 1, m + 1, down, right)
 ManhattanTourist <- function(n, m, down, right){
 	s <- matrix(nrow = n, ncol = m)
 	s[1, 1] <- 0
@@ -121,4 +121,13 @@ OutputLCS <- function(backtrack, v, i, j){
 	} else {
 		return(paste0(OutputLCS(backtrack, v, i - 1, j - 1), substring(v, i, i)))
 	}
+}
+
+v <- "AACCTTGG"
+w <- "ACACTGTGA"
+LongestCommonSubsequence(v, w)
+LongestCommonSubsequence <- function(v, w){
+	backtrack <- LCSBacktrack(v,w)
+	lcs <- OutputLCS(backtrack, v, nchar(v), nchar(w))
+	return(lcs)
 }
