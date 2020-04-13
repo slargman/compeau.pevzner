@@ -24,8 +24,15 @@ DPChange <- function(money, coins){
 	return(min_num_coins[money + 1])
 }
 
-rows <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3") 
-ReadMatrix(rows)
+#' Convert a character vector into a numeric matrix
+#' 
+#' \code{ReadMatrix} converts a character vector consisting of numbers and spaces into the corresponding numeric matrix. The elements of the character vector \code{rows} correspond to the rows of the matrix with the columns separated by spaces.
+#' 
+#' @param rows A character vector where each element represents a row of the matrix with columns separated by spaces.
+#' @return A numeric matrix.
+#' @examples
+#' rows <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3") 
+#' ReadMatrix(rows)
 ReadMatrix <- function(rows){
 	mat <- strsplit(rows, split = " ", fixed = T)
 	mat <- t(sapply(mat, as.numeric))
