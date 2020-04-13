@@ -39,13 +39,25 @@ ReadMatrix <- function(rows){
 	return(mat)
 }
 
-n <- 4
-m <- 4
-rows1 <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3") 
-down <- ReadMatrix(rows1)
-rows2 <- c("3 2 4 0", "3 2 4 2", "0 7 3 3", "3 3 0 2", "1 3 2 2")
-right <- ReadMatrix(rows2)
-ManhattanTourist(n + 1, m + 1, down, right)
+#' Find the length of a longest path in a Manhattan-like grid
+#' 
+#' \code{ManhattanTourist} finds the length of a longest path in a rectangular city connecting the source node (0, 0) to the sink node (n, m). A longest path is also called a maximum-weight path and is where the sum of the weights along the edges is maximal among all paths from the source to the sink.
+#' 
+#' The Manhattan Tourist Problem consists of finding such a longest path in a rectangular city where the inputs are integers \code{n} and \code{m} giving the coordinates of the sink node, an \code{n} by \code{m + 1} matrix \code{down} giving the weights of the downward edges, and an \code{n + 1} by \code{m} matrix \code{right} giving the weights of the rightward edges. Note that the grid consists \code{n + 1}  by \code{m + 1} since the source node is defined to be \emph{(0, 0)}, requiring adjustment of indices in the creation of the matrix \code{s} which contains the length of the longest path to each node.
+#' 
+#' @param n A positive integer specifiying the vertical coordinate of the sink node. Note that the grid will actually have \code{n + 1} rows since the source node is defined as \emph{(0, 0)}.
+#' @param m A positive integer specifiying the horizontal coordinate of the sink node. Note that the grid will actually have \code{m + 1} columns since the source node is defined as \emph{(0, 0)}.
+#' @param down An \code{n} by \code{m + 1} numeric matrix giving the weights of the downward edges.
+#' @param right An \code{n + 1} by \code{m} numeric matrix giving the weights of the rightward edges.
+#' @return The length of a longest path from source \emph{(0, 0)} to sink \emph{(n, m)}.
+#' @examples
+#' n <- 4
+#' m <- 4
+#' rows1 <- c("1 0 2 4 3", "4 6 5 2 1", "4 4 5 2 1", "5 6 8 5 3") 
+#' down <- ReadMatrix(rows1)
+#' rows2 <- c("3 2 4 0", "3 2 4 2", "0 7 3 3", "3 3 0 2", "1 3 2 2")
+#' right <- ReadMatrix(rows2)
+#' ManhattanTourist(n + 1, m + 1, down, right)
 ManhattanTourist <- function(n, m, down, right){
 	s <- matrix(nrow = n, ncol = m)
 	s[1, 1] <- 0
